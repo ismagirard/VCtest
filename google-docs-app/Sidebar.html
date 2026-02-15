@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <?!= include('Sidebar.css') ?>
+</head>
+<body>
+  <!-- ===== HEADER ===== -->
+  <div class="header">
+    <div class="logo">
+      <span class="logo-text">delorme.</span>
+    </div>
+  </div>
+
+  <!-- ===== TEMPLATE SELECTOR (Step 1) ===== -->
+  <div id="view-templates" class="view active">
+    <div class="section-title">Select a template</div>
+    <div id="template-list" class="template-list">
+      <div class="template-card" id="card-content-optimization" style="cursor:pointer;">
+        <div class="template-card-name" style="pointer-events:none;">Content Optimization</div>
+        <div class="template-card-desc" style="pointer-events:none;">SEO content optimization report with before/after comparison</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TEMPLATE FORM (Step 2) ===== -->
+  <div id="view-form" class="view">
+    <div class="breadcrumb">
+      <a href="#" id="btn-back" class="back-link">&larr; Templates</a>
+    </div>
+    <div id="form-title" class="section-title"></div>
+    <div id="form-description" class="form-description"></div>
+
+    <form id="template-form">
+      <div id="form-fields">
+        <!-- Populated dynamically -->
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" id="btn-run" class="btn btn-primary" disabled>
+          Run Analysis
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ===== PROGRESS VIEW (Step 3) ===== -->
+  <div id="view-progress" class="view">
+    <div class="section-title">Processing...</div>
+    <div id="progress-steps" class="progress-steps">
+      <!-- Populated during execution -->
+    </div>
+    <div id="progress-status" class="progress-status"></div>
+  </div>
+
+  <!-- ===== STATUS BAR ===== -->
+  <div id="status-bar" class="status-bar hidden">
+    <span id="status-message"></span>
+  </div>
+
+  <?!= include('Sidebar.js') ?>
+</body>
+</html>

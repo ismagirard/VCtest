@@ -1,0 +1,342 @@
+<script>
+(function() {
+  'use strict';
+
+  // ============================================================
+  // STATE
+  // ============================================================
+
+  var state = {
+    templates: [],
+    selectedTemplate: null,
+    formData: {}
+  };
+
+  // ============================================================
+  // DOM REFS
+  // ============================================================
+
+  var views = {
+    templates: document.getElementById('view-templates'),
+    form: document.getElementById('view-form'),
+    progress: document.getElementById('view-progress')
+  };
+
+  var els = {
+    templateList: document.getElementById('template-list'),
+    formTitle: document.getElementById('form-title'),
+    formDescription: document.getElementById('form-description'),
+    formFields: document.getElementById('form-fields'),
+    templateForm: document.getElementById('template-form'),
+    btnBack: document.getElementById('btn-back'),
+    btnRun: document.getElementById('btn-run'),
+    statusBar: document.getElementById('status-bar'),
+    statusMessage: document.getElementById('status-message'),
+    progressSteps: document.getElementById('progress-steps'),
+    progressStatus: document.getElementById('progress-status')
+  };
+
+  // ============================================================
+  // VIEW NAVIGATION
+  // ============================================================
+
+  function showView(name) {
+    Object.keys(views).forEach(function(key) {
+      views[key].classList.toggle('active', key === name);
+    });
+  }
+
+  // ============================================================
+  // STATUS BAR
+  // ============================================================
+
+  function showStatus(message, type) {
+    els.statusBar.className = 'status-bar ' + (type || '');
+    els.statusMessage.textContent = message;
+    setTimeout(function() {
+      els.statusBar.className = 'status-bar hidden';
+    }, 3000);
+  }
+
+  // ============================================================
+  // TEMPLATE DEFINITIONS
+  // ============================================================
+
+  var TEMPLATES = {
+    content_optimization: {
+      id: 'content_optimization',
+      name: 'Content Optimization',
+      description: 'SEO content optimization report with before/after comparison',
+      fields: [
+        { id: 'client_name', label: 'Client Name', type: 'text', required: true, placeholder: 'e.g. LCI Melbourne' },
+        { id: 'target_keyword', label: 'Target Keyword', type: 'text', required: true, placeholder: 'e.g. bachelor of visual arts' },
+        { id: 'page_url', label: 'Page URL', type: 'url', required: true, placeholder: 'https://example.com/page' },
+        { id: 'page_type', label: 'Page Type', type: 'select', required: true, options: [
+          { value: '', label: 'Select page type...' },
+          { value: 'homepage', label: 'Homepage' },
+          { value: 'landing_page', label: 'Landing Page' },
+          { value: 'service_page', label: 'Service Page' },
+          { value: 'product_page', label: 'Product Page' },
+          { value: 'blog_post', label: 'Blog Post' },
+          { value: 'category_page', label: 'Category Page' },
+          { value: 'about_page', label: 'About Page' },
+          { value: 'contact_page', label: 'Contact Page' },
+          { value: 'other', label: 'Other' }
+        ]},
+        { id: 'country', label: 'Country', type: 'select', required: true, options: [] },
+        { id: 'language', label: 'Language', type: 'select', required: true, options: [] }
+      ]
+    }
+  };
+
+  // ============================================================
+  // TEMPLATE CARD CLICK
+  // ============================================================
+
+  document.getElementById('card-content-optimization').onclick = function() {
+    selectTemplate(TEMPLATES.content_optimization);
+  };
+
+  function selectTemplate(tmpl) {
+    state.selectedTemplate = tmpl;
+    state.formData = {};
+    els.formTitle.textContent = tmpl.name;
+    els.formDescription.textContent = tmpl.description;
+    renderFormFields(tmpl.fields);
+    showView('form');
+    validateForm();
+  }
+
+  // ============================================================
+  // FORM RENDERING
+  // ============================================================
+
+  function renderFormFields(fields) {
+    els.formFields.innerHTML = '';
+
+    fields.forEach(function(field) {
+      var group = document.createElement('div');
+      group.className = 'form-group';
+      group.setAttribute('data-field-id', field.id);
+
+      var label = document.createElement('label');
+      label.setAttribute('for', 'field-' + field.id);
+      label.innerHTML = escapeHtml(field.label) +
+        (field.required ? '<span class="required">*</span>' : '');
+      group.appendChild(label);
+
+      var input;
+
+      if (field.type === 'select') {
+        input = document.createElement('select');
+        input.id = 'field-' + field.id;
+        input.name = field.id;
+
+        if (field.options && field.options.length > 0) {
+          field.options.forEach(function(opt) {
+            var option = document.createElement('option');
+            option.value = opt.value;
+            option.textContent = opt.label;
+            input.appendChild(option);
+          });
+        } else {
+          // Empty options means it will be loaded dynamically (country/language)
+          var placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.textContent = 'Loading...';
+          input.appendChild(placeholder);
+          input.disabled = true;
+          loadDynamicOptions(field.id, input);
+        }
+      } else {
+        input = document.createElement('input');
+        input.type = field.type === 'url' ? 'url' : 'text';
+        input.id = 'field-' + field.id;
+        input.name = field.id;
+        input.placeholder = field.placeholder || '';
+      }
+
+      input.addEventListener('input', function() {
+        state.formData[field.id] = this.value;
+        clearFieldError(field.id);
+        validateForm();
+      });
+
+      input.addEventListener('change', function() {
+        state.formData[field.id] = this.value;
+        clearFieldError(field.id);
+        validateForm();
+      });
+
+      group.appendChild(input);
+
+      var errorEl = document.createElement('div');
+      errorEl.className = 'field-error';
+      errorEl.textContent = 'This field is required';
+      group.appendChild(errorEl);
+
+      els.formFields.appendChild(group);
+    });
+  }
+
+  // ============================================================
+  // DYNAMIC OPTIONS (Country / Language)
+  // ============================================================
+
+  /**
+   * Loads country/language options dynamically.
+   * For Phase 1, we use a static list. In later phases,
+   * these will be synced from DataForSEO / TextFocus APIs.
+   */
+  function loadDynamicOptions(fieldId, selectEl) {
+    var options = [];
+
+    if (fieldId === 'country') {
+      options = [
+        { value: '', label: 'Select country...' },
+        { value: 'AU', label: 'Australia' },
+        { value: 'CA', label: 'Canada' },
+        { value: 'FR', label: 'France' },
+        { value: 'DE', label: 'Germany' },
+        { value: 'NZ', label: 'New Zealand' },
+        { value: 'GB', label: 'United Kingdom' },
+        { value: 'US', label: 'United States' }
+      ];
+    } else if (fieldId === 'language') {
+      options = [
+        { value: '', label: 'Select language...' },
+        { value: 'en', label: 'English' },
+        { value: 'fr', label: 'French' },
+        { value: 'de', label: 'German' },
+        { value: 'es', label: 'Spanish' },
+        { value: 'pt', label: 'Portuguese' },
+        { value: 'it', label: 'Italian' }
+      ];
+    }
+
+    selectEl.innerHTML = '';
+    options.forEach(function(opt) {
+      var option = document.createElement('option');
+      option.value = opt.value;
+      option.textContent = opt.label;
+      selectEl.appendChild(option);
+    });
+    selectEl.disabled = false;
+  }
+
+  // ============================================================
+  // FORM VALIDATION
+  // ============================================================
+
+  function validateForm() {
+    if (!state.selectedTemplate) return;
+
+    var valid = true;
+    state.selectedTemplate.fields.forEach(function(field) {
+      if (field.required && !state.formData[field.id]) {
+        valid = false;
+      }
+    });
+
+    els.btnRun.disabled = !valid;
+    return valid;
+  }
+
+  function showFieldError(fieldId, message) {
+    var group = document.querySelector('[data-field-id="' + fieldId + '"]');
+    if (group) {
+      group.classList.add('error');
+      var errEl = group.querySelector('.field-error');
+      if (errEl) errEl.textContent = message || 'This field is required';
+    }
+  }
+
+  function clearFieldError(fieldId) {
+    var group = document.querySelector('[data-field-id="' + fieldId + '"]');
+    if (group) group.classList.remove('error');
+  }
+
+  // ============================================================
+  // FORM SUBMISSION (placeholder for Phase 2+)
+  // ============================================================
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      // Highlight empty required fields
+      state.selectedTemplate.fields.forEach(function(field) {
+        if (field.required && !state.formData[field.id]) {
+          showFieldError(field.id);
+        }
+      });
+      return;
+    }
+
+    // Show what will happen — for Phase 1 we just confirm the form works
+    var summary = Object.keys(state.formData).map(function(key) {
+      return key + ': ' + state.formData[key];
+    }).join('\n');
+
+    showStatus('Form validated successfully!', 'success');
+
+    // Log to console for testing
+    console.log('Template:', state.selectedTemplate.id);
+    console.log('Form data:', state.formData);
+
+    // Phase 2+: This will trigger the actual analysis pipeline
+    // showView('progress');
+    // runAnalysis(state.selectedTemplate.id, state.formData);
+  }
+
+  // ============================================================
+  // API STATUS CHECK
+  // ============================================================
+
+  function checkApis() {
+    google.script.run
+      .withSuccessHandler(function(status) {
+        console.log('API status:', status);
+      })
+      .withFailureHandler(function(err) {
+        console.warn('Could not check API status:', err.message);
+      })
+      .checkApiKeyStatus();
+  }
+
+  // ============================================================
+  // UTILITIES
+  // ============================================================
+
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
+  }
+
+  // ============================================================
+  // EVENT LISTENERS
+  // ============================================================
+
+  els.btnBack.addEventListener('click', function(e) {
+    e.preventDefault();
+    state.selectedTemplate = null;
+    state.formData = {};
+    showView('templates');
+  });
+
+  els.templateForm.addEventListener('submit', handleSubmit);
+
+  // ============================================================
+  // INIT
+  // ============================================================
+
+  // Check API keys on load (non-blocking)
+  try {
+    checkApis();
+  } catch (e) {
+    // Ignore if google.script.run not ready
+  }
+
+})();
+</script>

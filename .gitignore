@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# App outputs
+output/
+credentials/
+
+# Environment
+.env
+
+# OS
+.DS_Store
