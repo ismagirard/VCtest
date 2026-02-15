@@ -1183,7 +1183,7 @@
     }
 
     /* ── Custom Documents (Brand Doc mode) ── */
-    function addCustomDoc() {
+    async function addCustomDoc() {
       var titleEl = document.getElementById('customDocTitle');
       var contentEl = document.getElementById('customDocContent');
       var title = titleEl.value.trim();
@@ -1192,7 +1192,22 @@
       if (!title) { alert('Please enter a title.'); return; }
       if (!content) { alert('Please paste or upload some content.'); return; }
 
-      customDocs.push({ title: title, content: content });
+      // Send pasted content to server so it stays server-side (referenced by fileId)
+      try {
+        var blob = new Blob([content], { type: 'text/plain' });
+        var formData = new FormData();
+        formData.append('file', blob, title.replace(/[^a-z0-9 _-]/gi, '') + '.txt');
+        var res = await fetch('/api/parse-file', { method: 'POST', body: formData });
+        var data = await res.json();
+        if (!res.ok) {
+          alert('Failed to save content: ' + (data.error || 'Unknown error'));
+          return;
+        }
+        customDocs.push({ title: title, fileId: data.fileId, preview: content.substring(0, 200) });
+      } catch (err) {
+        alert('Failed to save content: ' + err.message);
+        return;
+      }
       titleEl.value = '';
       contentEl.value = '';
       document.getElementById('customDocFileName').textContent = '';
@@ -1281,36 +1296,22 @@
         }
 
         try {
-          if (ext === '.pdf') {
-            // PDF: send to server for text extraction (+ OCR fallback)
-            if (valid.length === 1) {
-              statusEl.innerHTML = '<span class="spinner"></span> Extracting text from PDF (large/scanned files may take a minute)&hellip;';
-            }
-            var formData = new FormData();
-            formData.append('file', file);
-            var res = await fetch('/api/parse-file', { method: 'POST', body: formData });
-            var data = await res.json();
-            if (!res.ok) {
-              errors.push(file.name + ': ' + data.error);
-              continue;
-            }
-            if (data.ocr) ocrCount++;
-            customDocs.push({ title: title, fileId: data.fileId, preview: (data.text || '').substring(0, 200) });
-            added++;
-          } else {
-            // Text-based: read client-side
-            var text = await new Promise(function(resolve, reject) {
-              var reader = new FileReader();
-              reader.onload = function(e) { resolve(e.target.result); };
-              reader.onerror = function() { reject(new Error('Failed to read file')); };
-              reader.readAsText(file);
-            });
-            if (file.name.endsWith('.json')) {
-              try { text = JSON.stringify(JSON.parse(text), null, 2); } catch(err) { /* leave as-is */ }
-            }
-            customDocs.push({ title: title, content: text });
-            added++;
+          // ALL files go through /api/parse-file so content stays server-side.
+          // This prevents large file content from bloating the build request payload.
+          if (ext === '.pdf' && valid.length === 1) {
+            statusEl.innerHTML = '<span class="spinner"></span> Extracting text from PDF (large/scanned files may take a minute)&hellip;';
           }
+          var formData = new FormData();
+          formData.append('file', file);
+          var res = await fetch('/api/parse-file', { method: 'POST', body: formData });
+          var data = await res.json();
+          if (!res.ok) {
+            errors.push(file.name + ': ' + data.error);
+            continue;
+          }
+          if (data.ocr) ocrCount++;
+          customDocs.push({ title: title, fileId: data.fileId, preview: (data.text || '').substring(0, 200) });
+          added++;
         } catch (err) {
           errors.push(file.name + ': ' + err.message);
         }
@@ -1466,8 +1467,13 @@
       document.getElementById('bd-outputArea').classList.remove('show');
 
       try {
+        // Send only title + fileId (strip preview/content to keep payload small)
+        var docsPayload = customDocs.map(function(d) {
+          if (d.fileId) return { title: d.title, fileId: d.fileId };
+          return { title: d.title, content: d.content };
+        });
         var data = await streamBuildDoc(
-          { urls: urls, customDocs: customDocs },
+          { urls: urls, customDocs: docsPayload },
           'bd-buildStatus'
         );
 
