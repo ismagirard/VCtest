@@ -35,7 +35,7 @@ async function processWithConcurrency(items, fn, concurrency = 3) {
   return results;
 }
 
-async function buildBrandDoc(urls, { concurrency = DEFAULTS.concurrency, customDocs = [], onProgress } = {}) {
+async function buildBrandKnowledge(urls, { concurrency = DEFAULTS.concurrency, customDocs = [], onProgress } = {}) {
   const total = urls.length;
   let completed = 0;
 
@@ -89,7 +89,7 @@ async function buildBrandDoc(urls, { concurrency = DEFAULTS.concurrency, customD
 
   // Build markdown
   const lines = [];
-  lines.push('# Brand Documentation\n');
+  lines.push('# Brand Knowledge\n');
   lines.push(`> Extracted on ${new Date().toISOString()}`);
   lines.push(`> ${succeeded.length} pages extracted, ${failed.length} failed`);
   if (customDocs.length > 0) {
@@ -149,4 +149,39 @@ async function buildBrandDoc(urls, { concurrency = DEFAULTS.concurrency, customD
   return { markdown, results };
 }
 
-module.exports = { buildBrandDoc };
+/**
+ * Build a Brand Guidelines document from uploaded custom documents only (no URL crawling).
+ * Returns { markdown } — no `results` array since there are no URL extractions.
+ */
+async function buildBrandGuidelines(customDocs = []) {
+  if (!customDocs.length) {
+    return { markdown: '# Brand Guidelines\n\n> No documents provided.\n' };
+  }
+
+  const lines = [];
+  lines.push('# Brand Guidelines\n');
+  lines.push(`> Compiled on ${new Date().toISOString()}`);
+  lines.push(`> ${customDocs.length} document${customDocs.length !== 1 ? 's' : ''} included`);
+  lines.push('');
+
+  // Table of contents
+  lines.push('## Table of Contents\n');
+  customDocs.forEach((doc, i) => {
+    lines.push(`${i + 1}. [${doc.title}](#guideline-${i + 1})`);
+  });
+  lines.push('');
+
+  // Document sections
+  customDocs.forEach((doc, i) => {
+    lines.push(`---\n`);
+    lines.push(`<a id="guideline-${i + 1}"></a>\n`);
+    lines.push(`## ${doc.title}\n`);
+    lines.push(doc.content);
+    lines.push('');
+  });
+
+  const markdown = lines.join('\n');
+  return { markdown };
+}
+
+module.exports = { buildBrandKnowledge, buildBrandGuidelines };

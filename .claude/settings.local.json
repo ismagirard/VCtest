@@ -25,7 +25,10 @@
       "Bash(git mv:*)",
       "Bash(npx prisma db execute:*)",
       "Bash(sqlite3:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(git restore:*)",
+      "Bash(git push:*)",
+      "Bash(gh auth status:*)"
     ]
   }
 }

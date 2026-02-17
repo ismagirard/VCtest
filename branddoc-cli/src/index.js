@@ -7,7 +7,7 @@ config.ensureDir(config.OUTPUT_DIR);
 program
   .name('branddoc')
   .version('0.1.0')
-  .description('CLI tool for extracting brand documentation from websites');
+  .description('CLI tool for extracting brand knowledge from websites');
 
 program
   .command('sitemap <url>')
@@ -28,10 +28,10 @@ program
   .action(require('./commands/extract'));
 
 program
-  .command('build-doc <urls-file>')
-  .description('Build brand documentation from URLs listed in a JSON file')
+  .command('build-knowledge <urls-file>')
+  .description('Build brand knowledge from URLs listed in a JSON file')
   .option('--concurrency <n>', 'Number of parallel requests', parseInt, config.DEFAULTS.concurrency)
-  .action(require('./commands/build-doc'));
+  .action(require('./commands/build-knowledge'));
 
 program
   .command('serve')

@@ -104,7 +104,7 @@
     /* Mode picker */
     .mode-picker {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
       margin-bottom: 24px;
     }
@@ -122,6 +122,16 @@
     .mode-card:hover {
       border-color: var(--olive-mid);
       transform: translateY(-2px);
+    }
+
+    .mode-card.disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .mode-card.disabled:hover {
+      border-color: var(--olive-light);
+      transform: none;
     }
 
     .mode-card .mode-icon {
@@ -683,6 +693,10 @@
     .view.active { display: block; }
 
     /* Responsive */
+    @media (max-width: 900px) {
+      .mode-picker { grid-template-columns: repeat(2, 1fr); }
+    }
+
     @media (max-width: 640px) {
       .header { padding: 16px 20px; }
       .hero { padding: 48px 20px 40px; }
@@ -707,7 +721,7 @@
   <!-- Hero -->
   <div class="hero" id="hero">
     <h1>Your <span class="highlight">brand toolkit</span></h1>
-    <p>Crawl websites, extract content, and build comprehensive brand documentation.</p>
+    <p>Crawl websites, extract content, and build comprehensive brand knowledge.</p>
   </div>
 
   <!-- Main -->
@@ -718,10 +732,15 @@
     <!-- ═══════════════════════════════ -->
     <div class="view active" id="viewPicker">
       <div class="mode-picker">
-        <div class="mode-card" onclick="enterMode('brand-doc')">
+        <div class="mode-card" onclick="enterMode('brand-knowledge')">
           <span class="mode-icon">&#128214;</span>
-          <h3>Build Brand Doc</h3>
-          <p>Crawl a website, add custom content, and compile everything into a single brand document.</p>
+          <h3>Brand Knowledge</h3>
+          <p>Crawl a website, add custom content, and compile everything into a single brand knowledge document.</p>
+        </div>
+        <div class="mode-card" onclick="enterMode('brand-guidelines')">
+          <span class="mode-icon">&#128221;</span>
+          <h3>Brand Guidelines</h3>
+          <p>Upload writing instructions and guidelines into a structured reference document.</p>
         </div>
         <div class="mode-card" onclick="enterMode('extract')">
           <span class="mode-icon">&#128196;</span>
@@ -733,13 +752,18 @@
           <h3>Export URLs</h3>
           <p>Crawl a website and download all discovered URLs as a categorized CSV file.</p>
         </div>
+        <div class="mode-card disabled" title="Coming soon">
+          <span class="mode-icon">&#127970;</span>
+          <h3>Business Context</h3>
+          <p>Coming soon &mdash; add business context for content creation.</p>
+        </div>
       </div>
     </div>
 
     <!-- ═══════════════════════════════ -->
-    <!-- VIEW: Brand Doc mode           -->
+    <!-- VIEW: Brand Knowledge mode     -->
     <!-- ═══════════════════════════════ -->
-    <div class="view" id="viewBrandDoc">
+    <div class="view" id="viewBrandKnowledge">
 
       <!-- Crawl -->
       <div class="card">
@@ -748,36 +772,36 @@
         </div>
         <p class="desc">Enter a domain to discover all pages on the site.</p>
         <div class="domain-row">
-          <input type="text" id="bd-domainInput" class="domain-input"
+          <input type="text" id="bk-domainInput" class="domain-input"
                  placeholder="example.com"
-                 onkeydown="if(event.key==='Enter')crawlDomain('bd')" />
-          <button class="btn btn-primary" id="bd-crawlBtn" onclick="crawlDomain('bd')">Crawl Site</button>
+                 onkeydown="if(event.key==='Enter')crawlDomain('bk')" />
+          <button class="btn btn-primary" id="bk-crawlBtn" onclick="crawlDomain('bk')">Crawl Site</button>
         </div>
-        <div class="status" id="bd-crawlStatus"></div>
+        <div class="status" id="bk-crawlStatus"></div>
       </div>
 
       <!-- URL Selection -->
-      <div class="card" id="bd-urlListCard" style="display:none;">
+      <div class="card" id="bk-urlListCard" style="display:none;">
         <div class="card-header">
           <h2>Select URLs</h2>
         </div>
         <div class="url-list-toolbar">
           <div class="url-list-meta">
-            <span id="bd-selectedCount">0 / 0 selected</span>
-            <button class="btn-link" onclick="selectAll('bd')">Select all</button>
-            <button class="btn-link" onclick="deselectAll('bd')">Deselect all</button>
+            <span id="bk-selectedCount">0 / 0 selected</span>
+            <button class="btn-link" onclick="selectAll('bk')">Select all</button>
+            <button class="btn-link" onclick="deselectAll('bk')">Deselect all</button>
           </div>
           <div class="url-list-filters">
-            <input type="text" id="bd-searchInput" class="search-input" placeholder="Search URLs..." oninput="applyFilters('bd')" />
-            <select id="bd-filterCategory" onchange="applyFilters('bd')">
+            <input type="text" id="bk-searchInput" class="search-input" placeholder="Search URLs..." oninput="applyFilters('bk')" />
+            <select id="bk-filterCategory" onchange="applyFilters('bk')">
               <option value="all">All categories</option>
             </select>
-            <select id="bd-filterLanguage" onchange="applyFilters('bd')">
+            <select id="bk-filterLanguage" onchange="applyFilters('bk')">
               <option value="all">All languages</option>
             </select>
           </div>
         </div>
-        <div class="url-list" id="bd-urlList"></div>
+        <div class="url-list" id="bk-urlList"></div>
       </div>
 
       <!-- Custom Documents -->
@@ -785,51 +809,109 @@
         <div class="card-header">
           <h2>Add Custom Content</h2>
         </div>
-        <p class="desc">Add any extra content to include in the brand doc — transcripts, notes, briefs, or any text.</p>
+        <p class="desc">Add any extra content to include in the brand knowledge &mdash; transcripts, notes, briefs, or any text.</p>
         <div class="custom-doc-form">
-          <input type="text" id="customDocTitle" class="domain-input" placeholder="Title (e.g. Q1 Webinar Transcript)" style="margin-bottom:10px;" />
+          <input type="text" id="bk-customDocTitle" class="domain-input" placeholder="Title (e.g. Q1 Webinar Transcript)" style="margin-bottom:10px;" />
           <textarea
             class="url-textarea"
-            id="customDocContent"
+            id="bk-customDocContent"
             placeholder="Paste your content here..."
             style="min-height:100px;"
           ></textarea>
           <div style="display:flex;align-items:center;gap:12px;margin-top:10px;">
             <label class="btn btn-secondary" style="cursor:pointer;">
               Upload file(s)
-              <input type="file" id="customDocFile" style="display:none;" accept=".txt,.md,.json,.csv,.pdf" onchange="handleFileUpload(this)" multiple />
+              <input type="file" id="bk-customDocFile" style="display:none;" accept=".txt,.md,.json,.csv,.pdf" onchange="handleFileUpload(this, customDocs, renderCustomDocs, 'bk')" multiple />
             </label>
-            <span id="customDocFileName" style="font-size:13px;opacity:0.5;"></span>
-            <span id="customDocFileStatus" style="font-size:13px;"></span>
+            <span id="bk-customDocFileName" style="font-size:13px;opacity:0.5;"></span>
+            <span id="bk-customDocFileStatus" style="font-size:13px;"></span>
             <span style="flex:1;"></span>
-            <button class="btn btn-primary" onclick="addCustomDoc()" style="padding:10px 20px;">Add</button>
+            <button class="btn btn-primary" onclick="addDoc('bk', customDocs, renderCustomDocs)" style="padding:10px 20px;">Add</button>
           </div>
         </div>
-        <div id="customDocList" style="margin-top:16px;"></div>
-        <span id="customDocCount" style="font-size:14px;opacity:0.5;font-weight:500;margin-top:8px;display:block;"></span>
+        <div id="bk-customDocList" style="margin-top:16px;"></div>
+        <span id="bk-customDocCount" style="font-size:14px;opacity:0.5;font-weight:500;margin-top:8px;display:block;"></span>
       </div>
 
       <!-- Build action -->
       <div class="action-bar">
         <span class="spacer"></span>
-        <button class="btn btn-primary" id="bd-buildBtn" onclick="buildBrandDoc()" disabled>Build Brand Doc</button>
+        <button class="btn btn-primary" id="bk-buildBtn" onclick="buildBrandKnowledge()" disabled>Build Brand Knowledge</button>
       </div>
-      <div class="status" id="bd-buildStatus"></div>
+      <div class="status" id="bk-buildStatus"></div>
 
       <!-- Output -->
-      <div class="card output-area" id="bd-outputArea">
+      <div class="card output-area" id="bk-outputArea">
         <div class="card-header">
-          <h2>Brand Documentation</h2>
+          <h2>Brand Knowledge</h2>
         </div>
         <div class="output-header">
-          <span id="bd-outputSummary" style="font-size:14px;opacity:0.6;"></span>
+          <span id="bk-outputSummary" style="font-size:14px;opacity:0.6;"></span>
           <div class="output-toggle">
-            <button class="active" onclick="showRendered(this,'bd')">Rendered</button>
-            <button onclick="showRaw(this,'bd')">Raw Markdown</button>
-            <button onclick="downloadMd('bd')">Download .md</button>
+            <button class="active" onclick="showRendered(this,'bk')">Rendered</button>
+            <button onclick="showRaw(this,'bk')">Raw Markdown</button>
+            <button onclick="downloadMd('bk')">Download .md</button>
           </div>
         </div>
-        <div class="output-content rendered" id="bd-outputContent"></div>
+        <div class="output-content rendered" id="bk-outputContent"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════ -->
+    <!-- VIEW: Brand Guidelines mode    -->
+    <!-- ═══════════════════════════════ -->
+    <div class="view" id="viewBrandGuidelines">
+
+      <!-- Guidelines Documents -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Add Guidelines Content</h2>
+        </div>
+        <p class="desc">Upload writing instructions, tone of voice docs, brand guidelines, or any reference material.</p>
+        <div class="custom-doc-form">
+          <input type="text" id="bg-customDocTitle" class="domain-input" placeholder="Title (e.g. Tone of Voice Guide)" style="margin-bottom:10px;" />
+          <textarea
+            class="url-textarea"
+            id="bg-customDocContent"
+            placeholder="Paste your guidelines here..."
+            style="min-height:100px;"
+          ></textarea>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:10px;">
+            <label class="btn btn-secondary" style="cursor:pointer;">
+              Upload file(s)
+              <input type="file" id="bg-customDocFile" style="display:none;" accept=".txt,.md,.json,.csv,.pdf" onchange="handleFileUpload(this, guidelineDocs, renderGuidelineDocs, 'bg')" multiple />
+            </label>
+            <span id="bg-customDocFileName" style="font-size:13px;opacity:0.5;"></span>
+            <span id="bg-customDocFileStatus" style="font-size:13px;"></span>
+            <span style="flex:1;"></span>
+            <button class="btn btn-primary" onclick="addDoc('bg', guidelineDocs, renderGuidelineDocs)" style="padding:10px 20px;">Add</button>
+          </div>
+        </div>
+        <div id="bg-customDocList" style="margin-top:16px;"></div>
+        <span id="bg-customDocCount" style="font-size:14px;opacity:0.5;font-weight:500;margin-top:8px;display:block;"></span>
+      </div>
+
+      <!-- Build action -->
+      <div class="action-bar">
+        <span class="spacer"></span>
+        <button class="btn btn-primary" id="bg-buildBtn" onclick="buildBrandGuidelines()" disabled>Build Brand Guidelines</button>
+      </div>
+      <div class="status" id="bg-buildStatus"></div>
+
+      <!-- Output -->
+      <div class="card output-area" id="bg-outputArea">
+        <div class="card-header">
+          <h2>Brand Guidelines</h2>
+        </div>
+        <div class="output-header">
+          <span id="bg-outputSummary" style="font-size:14px;opacity:0.6;"></span>
+          <div class="output-toggle">
+            <button class="active" onclick="showRendered(this,'bg')">Rendered</button>
+            <button onclick="showRaw(this,'bg')">Raw Markdown</button>
+            <button onclick="downloadMd('bg')">Download .md</button>
+          </div>
+        </div>
+        <div class="output-content rendered" id="bg-outputContent"></div>
       </div>
     </div>
 
@@ -973,17 +1055,20 @@
     /* ── State ── */
     var currentMode = null;
     var modeData = {
-      bd:  { urls: [], rawMarkdown: '' },
+      bk:  { urls: [], rawMarkdown: '' },
+      bg:  { rawMarkdown: '' },
       ex:  { urls: [], rawMarkdown: '' },
       csv: { urls: [] }
     };
-    var customDocs = [];  // [{ title, content }]
+    var customDocs = [];      // Brand Knowledge: [{ title, fileId, preview }]
+    var guidelineDocs = [];   // Brand Guidelines: [{ title, fileId, preview }]
 
     /* ── Navigation ── */
     function goHome() {
       currentMode = null;
       document.getElementById('viewPicker').classList.add('active');
-      document.getElementById('viewBrandDoc').classList.remove('active');
+      document.getElementById('viewBrandKnowledge').classList.remove('active');
+      document.getElementById('viewBrandGuidelines').classList.remove('active');
       document.getElementById('viewExtract').classList.remove('active');
       document.getElementById('viewExport').classList.remove('active');
       document.getElementById('backBtn').style.display = 'none';
@@ -993,14 +1078,17 @@
     function enterMode(mode) {
       currentMode = mode;
       document.getElementById('viewPicker').classList.remove('active');
-      document.getElementById('viewBrandDoc').classList.remove('active');
+      document.getElementById('viewBrandKnowledge').classList.remove('active');
+      document.getElementById('viewBrandGuidelines').classList.remove('active');
       document.getElementById('viewExtract').classList.remove('active');
       document.getElementById('viewExport').classList.remove('active');
       document.getElementById('backBtn').style.display = 'inline-block';
       document.getElementById('hero').style.display = 'none';
 
-      if (mode === 'brand-doc') {
-        document.getElementById('viewBrandDoc').classList.add('active');
+      if (mode === 'brand-knowledge') {
+        document.getElementById('viewBrandKnowledge').classList.add('active');
+      } else if (mode === 'brand-guidelines') {
+        document.getElementById('viewBrandGuidelines').classList.add('active');
       } else if (mode === 'extract') {
         document.getElementById('viewExtract').classList.add('active');
       } else if (mode === 'export') {
@@ -1131,18 +1219,34 @@
         return;
       }
 
-      var selected = modeData[prefix].urls.filter(function(u) { return u.enabled; }).length;
-      var visible = modeData[prefix].urls.filter(function(u) { return matchesFilters(u, prefix); }).length;
-      var total = modeData[prefix].urls.length;
-      var label = visible < total
-        ? selected + ' selected \u00b7 ' + visible + ' / ' + total + ' shown'
-        : selected + ' / ' + total + ' selected';
-      document.getElementById(prefix + '-selectedCount').textContent = label;
+      // Brand Knowledge mode
+      if (prefix === 'bk') {
+        var selected = modeData.bk.urls.filter(function(u) { return u.enabled; }).length;
+        var visible = modeData.bk.urls.filter(function(u) { return matchesFilters(u, 'bk'); }).length;
+        var total = modeData.bk.urls.length;
+        var label = visible < total
+          ? selected + ' selected \u00b7 ' + visible + ' / ' + total + ' shown'
+          : selected + ' / ' + total + ' selected';
+        document.getElementById('bk-selectedCount').textContent = label;
+        document.getElementById('bk-buildBtn').disabled = selected === 0 && customDocs.length === 0;
+        return;
+      }
 
-      // Update build button state
-      if (prefix === 'bd') {
-        document.getElementById('bd-buildBtn').disabled = selected === 0 && customDocs.length === 0;
-      } else if (prefix === 'ex') {
+      // Brand Guidelines mode
+      if (prefix === 'bg') {
+        document.getElementById('bg-buildBtn').disabled = guidelineDocs.length === 0;
+        return;
+      }
+
+      // Extract mode
+      if (prefix === 'ex') {
+        var selected = modeData.ex.urls.filter(function(u) { return u.enabled; }).length;
+        var visible = modeData.ex.urls.filter(function(u) { return matchesFilters(u, 'ex'); }).length;
+        var total = modeData.ex.urls.length;
+        var label = visible < total
+          ? selected + ' selected \u00b7 ' + visible + ' / ' + total + ' shown'
+          : selected + ' / ' + total + ' selected';
+        document.getElementById('ex-selectedCount').textContent = label;
         var manualUrls = parseManualUrls();
         document.getElementById('ex-buildBtn').disabled = selected === 0 && manualUrls.length === 0;
       }
@@ -1182,10 +1286,12 @@
       updateSelectedCount(prefix);
     }
 
-    /* ── Custom Documents (Brand Doc mode) ── */
-    async function addCustomDoc() {
-      var titleEl = document.getElementById('customDocTitle');
-      var contentEl = document.getElementById('customDocContent');
+    /* ── Shared Document Functions (Brand Knowledge + Brand Guidelines) ── */
+
+    // Shared: add document from title+content textarea
+    async function addDoc(prefix, targetArray, renderFn) {
+      var titleEl = document.getElementById(prefix + '-customDocTitle');
+      var contentEl = document.getElementById(prefix + '-customDocContent');
       var title = titleEl.value.trim();
       var content = contentEl.value.trim();
 
@@ -1203,37 +1309,39 @@
           alert('Failed to save content: ' + (data.error || 'Unknown error'));
           return;
         }
-        customDocs.push({ title: title, fileId: data.fileId, preview: content.substring(0, 200) });
+        targetArray.push({ title: title, fileId: data.fileId, preview: content.substring(0, 200) });
       } catch (err) {
         alert('Failed to save content: ' + err.message);
         return;
       }
       titleEl.value = '';
       contentEl.value = '';
-      document.getElementById('customDocFileName').textContent = '';
-      renderCustomDocs();
-      updateSelectedCount('bd');
+      document.getElementById(prefix + '-customDocFileName').textContent = '';
+      renderFn();
+      updateSelectedCount(prefix);
     }
 
-    function removeCustomDoc(index) {
-      customDocs.splice(index, 1);
-      renderCustomDocs();
-      updateSelectedCount('bd');
+    // Shared: remove document by index
+    function removeDoc(index, targetArray, renderFn, prefix) {
+      targetArray.splice(index, 1);
+      renderFn();
+      updateSelectedCount(prefix);
     }
 
-    function renderCustomDocs() {
-      var container = document.getElementById('customDocList');
-      var countEl = document.getElementById('customDocCount');
+    // Shared: render document list
+    function renderDocList(targetArray, containerId, countId, removeFnName) {
+      var container = document.getElementById(containerId);
+      var countEl = document.getElementById(countId);
 
-      if (customDocs.length === 0) {
+      if (targetArray.length === 0) {
         container.innerHTML = '';
         countEl.textContent = '';
         return;
       }
 
       var html = '';
-      for (var i = 0; i < customDocs.length; i++) {
-        var doc = customDocs[i];
+      for (var i = 0; i < targetArray.length; i++) {
+        var doc = targetArray[i];
         var previewText = doc.content || doc.preview || '';
         var preview = previewText.substring(0, 80).replace(/\n/g, ' ');
         if (previewText.length > 80) preview += '...';
@@ -1242,19 +1350,38 @@
           + '<div class="custom-doc-title">' + escapeHtml(doc.title) + '</div>'
           + '<div class="custom-doc-preview">' + escapeHtml(preview) + '</div>'
           + '</div>'
-          + '<button class="btn-remove" onclick="removeCustomDoc(' + i + ')" title="Remove">&times;</button>'
+          + '<button class="btn-remove" onclick="' + removeFnName + '(' + i + ')" title="Remove">&times;</button>'
           + '</div>';
       }
       container.innerHTML = html;
-      countEl.textContent = customDocs.length + ' custom document' + (customDocs.length !== 1 ? 's' : '') + ' added';
+      countEl.textContent = targetArray.length + ' document' + (targetArray.length !== 1 ? 's' : '') + ' added';
     }
 
-    async function handleFileUpload(input) {
+    // Brand Knowledge render wrapper
+    function renderCustomDocs() {
+      renderDocList(customDocs, 'bk-customDocList', 'bk-customDocCount', 'removeCustomDoc');
+    }
+
+    function removeCustomDoc(index) {
+      removeDoc(index, customDocs, renderCustomDocs, 'bk');
+    }
+
+    // Brand Guidelines render wrapper
+    function renderGuidelineDocs() {
+      renderDocList(guidelineDocs, 'bg-customDocList', 'bg-customDocCount', 'removeGuidelineDoc');
+    }
+
+    function removeGuidelineDoc(index) {
+      removeDoc(index, guidelineDocs, renderGuidelineDocs, 'bg');
+    }
+
+    // Shared: file upload handler
+    async function handleFileUpload(input, targetArray, renderFn, prefix) {
       var files = Array.prototype.slice.call(input.files);
       if (!files.length) return;
 
-      var statusEl = document.getElementById('customDocFileStatus');
-      var fileNameEl = document.getElementById('customDocFileName');
+      var statusEl = document.getElementById(prefix + '-customDocFileStatus');
+      var fileNameEl = document.getElementById(prefix + '-customDocFileName');
       var allowedExtensions = ['.txt', '.md', '.json', '.csv', '.pdf'];
 
       // Validate all files first
@@ -1310,7 +1437,7 @@
             continue;
           }
           if (data.ocr) ocrCount++;
-          customDocs.push({ title: title, fileId: data.fileId, preview: (data.text || '').substring(0, 200) });
+          targetArray.push({ title: title, fileId: data.fileId, preview: (data.text || '').substring(0, 200) });
           added++;
         } catch (err) {
           errors.push(file.name + ': ' + err.message);
@@ -1318,8 +1445,8 @@
       }
 
       // Render results
-      renderCustomDocs();
-      updateSelectedCount('bd');
+      renderFn();
+      updateSelectedCount(prefix);
 
       // Show final status
       var parts = [];
@@ -1348,14 +1475,14 @@
       }
 
       // Clear title/content fields (multi-file bypasses them)
-      document.getElementById('customDocTitle').value = '';
-      document.getElementById('customDocContent').value = '';
+      document.getElementById(prefix + '-customDocTitle').value = '';
+      document.getElementById(prefix + '-customDocContent').value = '';
       input.value = '';
     }
 
     /* ── SSE Build Helper (fetch + ReadableStream) ── */
-    async function streamBuildDoc(payload, statusId) {
-      var response = await fetch('/api/build-doc', {
+    async function streamBuildDoc(endpoint, payload, statusId) {
+      var response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -1380,11 +1507,11 @@
           var shortUrl = evt.url;
           try { shortUrl = new URL(evt.url).pathname; } catch(e) {}
           if (shortUrl.length > 50) shortUrl = shortUrl.substring(0, 47) + '...';
-          var statusIcon = evt.ok ? '✓' : '✗';
+          var statusIcon = evt.ok ? '\u2713' : '\u2717';
           setStatus(statusId, 'info',
-            '<span class="spinner"></span> ' + pct + '% — ' +
+            '<span class="spinner"></span> ' + pct + '% \u2014 ' +
             evt.current + '/' + evt.total +
-            ' (' + succeeded + ' ok, ' + failed + ' failed) — ' +
+            ' (' + succeeded + ' ok, ' + failed + ' failed) \u2014 ' +
             statusIcon + ' ' + escapeHtml(shortUrl));
           return;
         }
@@ -1450,21 +1577,21 @@
       return result;
     }
 
-    /* ── Build Brand Doc ── */
-    async function buildBrandDoc() {
-      var urls = modeData.bd.urls.filter(function(u) { return u.enabled; }).map(function(u) { return u.url; });
+    /* ── Build Brand Knowledge ── */
+    async function buildBrandKnowledge() {
+      var urls = modeData.bk.urls.filter(function(u) { return u.enabled; }).map(function(u) { return u.url; });
       if (!urls.length && !customDocs.length) return;
 
-      var btn = document.getElementById('bd-buildBtn');
+      var btn = document.getElementById('bk-buildBtn');
       btn.disabled = true;
 
       var parts = [];
       if (urls.length) parts.push(urls.length + ' page' + (urls.length !== 1 ? 's' : ''));
       if (customDocs.length) parts.push(customDocs.length + ' custom doc' + (customDocs.length !== 1 ? 's' : ''));
 
-      setStatus('bd-buildStatus', 'info',
+      setStatus('bk-buildStatus', 'info',
         '<span class="spinner"></span> Building from ' + parts.join(' + ') + '&hellip;');
-      document.getElementById('bd-outputArea').classList.remove('show');
+      document.getElementById('bk-outputArea').classList.remove('show');
 
       try {
         // Send only title + fileId (strip preview/content to keep payload small)
@@ -1473,24 +1600,63 @@
           return { title: d.title, content: d.content };
         });
         var data = await streamBuildDoc(
+          '/api/build-knowledge',
           { urls: urls, customDocs: docsPayload },
-          'bd-buildStatus'
+          'bk-buildStatus'
         );
 
-        modeData.bd.rawMarkdown = data.markdown;
-        document.getElementById('bd-outputContent').innerHTML = markdownToHtml(data.markdown);
-        document.getElementById('bd-outputContent').className = 'output-content rendered';
+        modeData.bk.rawMarkdown = data.markdown;
+        document.getElementById('bk-outputContent').innerHTML = markdownToHtml(data.markdown);
+        document.getElementById('bk-outputContent').className = 'output-content rendered';
 
         var summary = data.succeeded + ' pages extracted, ' + data.failed + ' failed';
         if (customDocs.length) summary += ', ' + customDocs.length + ' custom doc' + (customDocs.length !== 1 ? 's' : '');
-        document.getElementById('bd-outputSummary').textContent = summary;
-        document.getElementById('bd-outputArea').classList.add('show');
-        setStatus('bd-buildStatus', 'success', 'Done! ' + summary + '. Saved to disk.');
+        document.getElementById('bk-outputSummary').textContent = summary;
+        document.getElementById('bk-outputArea').classList.add('show');
+        setStatus('bk-buildStatus', 'success', 'Done! ' + summary + '. Saved to disk.');
       } catch (err) {
-        setStatus('bd-buildStatus', 'error', 'Error: ' + escapeHtml(err.message));
+        setStatus('bk-buildStatus', 'error', 'Error: ' + escapeHtml(err.message));
       } finally {
         btn.disabled = false;
-        updateSelectedCount('bd');
+        updateSelectedCount('bk');
+      }
+    }
+
+    /* ── Build Brand Guidelines ── */
+    async function buildBrandGuidelines() {
+      if (!guidelineDocs.length) return;
+
+      var btn = document.getElementById('bg-buildBtn');
+      btn.disabled = true;
+
+      setStatus('bg-buildStatus', 'info',
+        '<span class="spinner"></span> Building guidelines from ' + guidelineDocs.length + ' document' + (guidelineDocs.length !== 1 ? 's' : '') + '&hellip;');
+      document.getElementById('bg-outputArea').classList.remove('show');
+
+      try {
+        var docsPayload = guidelineDocs.map(function(d) {
+          if (d.fileId) return { title: d.title, fileId: d.fileId };
+          return { title: d.title, content: d.content };
+        });
+        var data = await streamBuildDoc(
+          '/api/build-guidelines',
+          { customDocs: docsPayload },
+          'bg-buildStatus'
+        );
+
+        modeData.bg.rawMarkdown = data.markdown;
+        document.getElementById('bg-outputContent').innerHTML = markdownToHtml(data.markdown);
+        document.getElementById('bg-outputContent').className = 'output-content rendered';
+
+        var summary = guidelineDocs.length + ' document' + (guidelineDocs.length !== 1 ? 's' : '') + ' compiled';
+        document.getElementById('bg-outputSummary').textContent = summary;
+        document.getElementById('bg-outputArea').classList.add('show');
+        setStatus('bg-buildStatus', 'success', 'Done! ' + summary + '. Saved to disk.');
+      } catch (err) {
+        setStatus('bg-buildStatus', 'error', 'Error: ' + escapeHtml(err.message));
+      } finally {
+        btn.disabled = false;
+        updateSelectedCount('bg');
       }
     }
 
@@ -1526,6 +1692,7 @@
 
       try {
         var data = await streamBuildDoc(
+          '/api/build-knowledge',
           { urls: urls },
           'ex-buildStatus'
         );
@@ -1593,7 +1760,8 @@
       var blob = new Blob([md], { type: 'text/markdown' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = (prefix === 'bd' ? 'brand-doc' : 'extracted-content') + '.md';
+      var names = { bk: 'brand-knowledge', bg: 'brand-guidelines', ex: 'extracted-content' };
+      a.download = (names[prefix] || 'document') + '.md';
       a.click();
       URL.revokeObjectURL(a.href);
     }

@@ -1,6 +1,6 @@
 {
-  "lastOpenCount": 3,
-  "lastTopKey": "INFO|docs/plan.md|Plan/contract mismatch: `docs/plan.md` doesn’t mention `/api/parse-file`, the `fileId` temp-store flow, or OCR system dependencies, but they are implemented in `src/server.js` and `src/lib/temp-store.js`. This is a doc gap and a missing deployment step (`pdftoppm`/`tesseract` availability).",
-  "lastFailedCategoriesKey": "correctness|security|testing",
-  "updatedAt": "2026-02-15T14:28:34.404Z"
+  "lastOpenCount": 5,
+  "lastTopKey": "INFO||The rename from “brand doc” to “brand knowledge” is only partially reflected: implementation changed, but the plan and tests still target the old command/endpoint.",
+  "lastFailedCategoriesKey": "testing",
+  "updatedAt": "2026-02-15T17:04:41.267Z"
 }

@@ -1,12 +1,13 @@
 // Integration tests for server endpoints.
-// We mock the heavy dependencies (crawlDomain, buildBrandDoc, etc.) so these
+// We mock the heavy dependencies (crawlDomain, buildBrandKnowledge, etc.) so these
 // tests run fast and offline — they verify the HTTP contract, not the crawling.
 
 jest.mock('../src/lib/domain-crawler', () => ({
   crawlDomain: jest.fn(),
 }));
 jest.mock('../src/lib/doc-builder', () => ({
-  buildBrandDoc: jest.fn(),
+  buildBrandKnowledge: jest.fn(),
+  buildBrandGuidelines: jest.fn(),
 }));
 jest.mock('../src/lib/content-extractor', () => ({
   extractContent: jest.fn(),
@@ -26,7 +27,7 @@ jest.mock('../src/lib/browser-fetcher', () => ({
 
 const http = require('http');
 const { crawlDomain } = require('../src/lib/domain-crawler');
-const { buildBrandDoc } = require('../src/lib/doc-builder');
+const { buildBrandKnowledge, buildBrandGuidelines } = require('../src/lib/doc-builder');
 const { extractContent } = require('../src/lib/content-extractor');
 const { parseSitemap } = require('../src/lib/sitemap-parser');
 
@@ -202,10 +203,10 @@ describe('POST /api/extract', () => {
   });
 });
 
-// ─── /api/build-doc ──────────────────────────────────────────────────
-describe('POST /api/build-doc', () => {
+// ─── /api/build-knowledge ───────────────────────────────────────────
+describe('POST /api/build-knowledge', () => {
   test('returns SSE error event when no URLs provided (empty body)', async () => {
-    const res = await request('POST', '/api/build-doc', {});
+    const res = await request('POST', '/api/build-knowledge', {});
     expect(res.headers['content-type']).toContain('text/event-stream');
     const events = parseSseEvents(res.body);
     expect(events.length).toBeGreaterThanOrEqual(1);
@@ -214,14 +215,14 @@ describe('POST /api/build-doc', () => {
   });
 
   test('returns SSE error event when urls is empty array', async () => {
-    const res = await request('POST', '/api/build-doc', { urls: [] });
+    const res = await request('POST', '/api/build-knowledge', { urls: [] });
     expect(res.headers['content-type']).toContain('text/event-stream');
     const events = parseSseEvents(res.body);
     expect(events[0].type).toBe('error');
   });
 
   test('returns SSE error for malformed JSON body', async () => {
-    const res = await request('POST', '/api/build-doc', null, {
+    const res = await request('POST', '/api/build-knowledge', null, {
       rawBody: '{this is not valid json!!',
     });
     expect(res.headers['content-type']).toContain('text/event-stream');
@@ -234,7 +235,7 @@ describe('POST /api/build-doc', () => {
   test('returns SSE error for oversized body', async () => {
     // express.json limit is 50mb — send ~51mb of valid JSON to trigger entity.too.large
     const bigPayload = JSON.stringify({ urls: ['x'.repeat(51 * 1024 * 1024)] });
-    const res = await request('POST', '/api/build-doc', null, {
+    const res = await request('POST', '/api/build-knowledge', null, {
       rawBody: bigPayload,
     });
     expect(res.headers['content-type']).toContain('text/event-stream');
@@ -250,7 +251,7 @@ describe('POST /api/build-doc', () => {
     const config = require('../src/config');
     config.ensureDir(config.OUTPUT_DIR);
 
-    buildBrandDoc.mockImplementation(async (urls, opts) => {
+    buildBrandKnowledge.mockImplementation(async (urls, opts) => {
       if (opts.onProgress) {
         opts.onProgress({ current: 1, total: 1, url: urls[0], ok: true, title: 'Test', error: null });
       }
@@ -260,7 +261,7 @@ describe('POST /api/build-doc', () => {
       };
     });
 
-    const res = await request('POST', '/api/build-doc', {
+    const res = await request('POST', '/api/build-knowledge', {
       urls: ['https://example.com/'],
     });
 
@@ -280,9 +281,9 @@ describe('POST /api/build-doc', () => {
   });
 
   test('streams error event on build failure', async () => {
-    buildBrandDoc.mockRejectedValue(new Error('Build exploded'));
+    buildBrandKnowledge.mockRejectedValue(new Error('Build exploded'));
 
-    const res = await request('POST', '/api/build-doc', {
+    const res = await request('POST', '/api/build-knowledge', {
       urls: ['https://example.com/'],
     });
 
@@ -298,7 +299,7 @@ describe('POST /api/build-doc', () => {
     const config = require('../src/config');
     config.ensureDir(config.OUTPUT_DIR);
 
-    buildBrandDoc.mockImplementation(async (urls, opts) => {
+    buildBrandKnowledge.mockImplementation(async (urls, opts) => {
       // Emit 3 progress events
       for (let i = 0; i < urls.length; i++) {
         opts.onProgress({ current: i + 1, total: urls.length, url: urls[i], ok: true, title: `P${i + 1}`, error: null });
@@ -309,7 +310,7 @@ describe('POST /api/build-doc', () => {
       };
     });
 
-    const res = await request('POST', '/api/build-doc', {
+    const res = await request('POST', '/api/build-knowledge', {
       urls: ['https://a.com/', 'https://b.com/', 'https://c.com/'],
     });
 
@@ -325,6 +326,73 @@ describe('POST /api/build-doc', () => {
     // Exactly 3 progress + 1 done
     expect(types.filter((t) => t === 'progress')).toHaveLength(3);
     expect(types.filter((t) => t === 'done')).toHaveLength(1);
+  });
+});
+
+// ─── /api/build-guidelines ──────────────────────────────────────────
+describe('POST /api/build-guidelines', () => {
+  test('returns SSE error event when no documents provided', async () => {
+    const res = await request('POST', '/api/build-guidelines', {});
+    expect(res.headers['content-type']).toContain('text/event-stream');
+    const events = parseSseEvents(res.body);
+    expect(events.length).toBeGreaterThanOrEqual(1);
+    expect(events[0].type).toBe('error');
+    expect(events[0].error).toContain('Documents are required');
+  });
+
+  test('returns SSE error event when customDocs is empty array', async () => {
+    const res = await request('POST', '/api/build-guidelines', { customDocs: [] });
+    expect(res.headers['content-type']).toContain('text/event-stream');
+    const events = parseSseEvents(res.body);
+    expect(events[0].type).toBe('error');
+  });
+
+  test('returns SSE error for malformed JSON body', async () => {
+    const res = await request('POST', '/api/build-guidelines', null, {
+      rawBody: '{not valid json!!',
+    });
+    expect(res.headers['content-type']).toContain('text/event-stream');
+    const events = parseSseEvents(res.body);
+    expect(events.length).toBeGreaterThanOrEqual(1);
+    expect(events[0].type).toBe('error');
+    expect(events[0].error).toContain('Invalid JSON');
+  });
+
+  test('streams done event on success with custom docs', async () => {
+    const fs = require('fs');
+    const config = require('../src/config');
+    config.ensureDir(config.OUTPUT_DIR);
+
+    buildBrandGuidelines.mockResolvedValue({
+      markdown: '# Brand Guidelines\n\nTone of Voice content here',
+    });
+
+    const res = await request('POST', '/api/build-guidelines', {
+      customDocs: [{ title: 'Tone of Voice', content: 'Be friendly.' }],
+    });
+
+    expect(res.headers['content-type']).toContain('text/event-stream');
+    const events = parseSseEvents(res.body);
+    const doneEvents = events.filter((e) => e.type === 'done');
+
+    expect(doneEvents).toHaveLength(1);
+    expect(doneEvents[0].succeeded).toBe(1);
+    expect(doneEvents[0].failed).toBe(0);
+    expect(doneEvents[0].docUrl).toMatch(/\/api\/doc\/brand-guidelines-/);
+  });
+
+  test('streams error event on build failure', async () => {
+    buildBrandGuidelines.mockRejectedValue(new Error('Guidelines build failed'));
+
+    const res = await request('POST', '/api/build-guidelines', {
+      customDocs: [{ title: 'Test', content: 'Content' }],
+    });
+
+    expect(res.headers['content-type']).toContain('text/event-stream');
+    const events = parseSseEvents(res.body);
+    const errorEvents = events.filter((e) => e.type === 'error');
+    expect(errorEvents).toHaveLength(1);
+    expect(errorEvents[0].error).toBe('Guidelines build failed');
   });
 });
 

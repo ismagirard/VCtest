@@ -586,37 +586,114 @@
     },
     "docs/plan.md|INFO|plan/contract mismatch: `docs/plan.md` doesn’t mention `/api/parse-file`, the `fileid` temp-store flow, or ocr system dependencies, but they are implemented in `src/server.js` and `src/lib/temp-store.js`. this is a doc gap and a missing deployment step (`pdftoppm`/`tesseract` availability).": {
       "id": "docs/plan.md|INFO|plan/contract mismatch: `docs/plan.md` doesn’t mention `/api/parse-file`, the `fileid` temp-store flow, or ocr system dependencies, but they are implemented in `src/server.js` and `src/lib/temp-store.js`. this is a doc gap and a missing deployment step (`pdftoppm`/`tesseract` availability).",
-      "status": "open",
+      "status": "resolved",
       "severity": "INFO",
       "path": "docs/plan.md",
       "text": "Plan/contract mismatch: `docs/plan.md` doesn’t mention `/api/parse-file`, the `fileId` temp-store flow, or OCR system dependencies, but they are implemented in `src/server.js` and `src/lib/temp-store.js`. This is a doc gap and a missing deployment step (`pdftoppm`/`tesseract` availability).",
       "firstSeen": "2026-02-15T14:28:34.396Z",
       "lastSeen": "2026-02-15T14:28:34.396Z",
-      "resolvedAt": null,
+      "resolvedAt": "2026-02-15T16:55:12.321Z",
       "occurrences": 1
     },
     "src/lib/content-extractor.js|INFO|anti‑bot detection isn’t applied at all tiers: `src/lib/content-extractor.js` only checks `isrealcontent` for direct http fetches; puppeteer/scrapeowl html is accepted without challenge detection. this contradicts the plan and risks compiling interstitial pages as content.": {
       "id": "src/lib/content-extractor.js|INFO|anti‑bot detection isn’t applied at all tiers: `src/lib/content-extractor.js` only checks `isrealcontent` for direct http fetches; puppeteer/scrapeowl html is accepted without challenge detection. this contradicts the plan and risks compiling interstitial pages as content.",
-      "status": "open",
+      "status": "resolved",
       "severity": "INFO",
       "path": "src/lib/content-extractor.js",
       "text": "Anti‑bot detection isn’t applied at all tiers: `src/lib/content-extractor.js` only checks `isRealContent` for direct HTTP fetches; Puppeteer/ScrapeOWL HTML is accepted without challenge detection. This contradicts the plan and risks compiling interstitial pages as content.",
       "firstSeen": "2026-02-15T14:28:34.396Z",
       "lastSeen": "2026-02-15T14:28:34.396Z",
-      "resolvedAt": null,
+      "resolvedAt": "2026-02-15T16:55:12.321Z",
       "occurrences": 1
     },
     "src/lib/temp-store.js|INFO|missing tests: no coverage for `/api/parse-file` (pdf + ocr + `fileid` expiry/error paths) or `src/lib/temp-store.js`. no tests for gsc auth/client (`src/lib/gsc-auth.js`, `src/lib/gsc-client.js`) or cli command flows (`src/commands/*.js`).": {
       "id": "src/lib/temp-store.js|INFO|missing tests: no coverage for `/api/parse-file` (pdf + ocr + `fileid` expiry/error paths) or `src/lib/temp-store.js`. no tests for gsc auth/client (`src/lib/gsc-auth.js`, `src/lib/gsc-client.js`) or cli command flows (`src/commands/*.js`).",
-      "status": "open",
+      "status": "resolved",
       "severity": "INFO",
       "path": "src/lib/temp-store.js",
       "text": "Missing tests: No coverage for `/api/parse-file` (PDF + OCR + `fileId` expiry/error paths) or `src/lib/temp-store.js`. No tests for GSC auth/client (`src/lib/gsc-auth.js`, `src/lib/gsc-client.js`) or CLI command flows (`src/commands/*.js`).",
       "firstSeen": "2026-02-15T14:28:34.396Z",
       "lastSeen": "2026-02-15T14:28:34.396Z",
+      "resolvedAt": "2026-02-15T16:55:12.321Z",
+      "occurrences": 1
+    },
+    "no-path|INFO|tests/mocks are now stale and will fail because they import `buildbranddoc` and assert the old header text (`test/doc-builder.test.js`, `test/server.test.js`).": {
+      "id": "no-path|INFO|tests/mocks are now stale and will fail because they import `buildbranddoc` and assert the old header text (`test/doc-builder.test.js`, `test/server.test.js`).",
+      "status": "resolved",
+      "severity": "INFO",
+      "path": null,
+      "text": "Tests/mocks are now stale and will fail because they import `buildBrandDoc` and assert the old header text (`test/doc-builder.test.js`, `test/server.test.js`).",
+      "firstSeen": "2026-02-15T16:55:12.321Z",
+      "lastSeen": "2026-02-15T16:55:12.321Z",
+      "resolvedAt": "2026-02-15T17:04:26.117Z",
+      "occurrences": 1
+    },
+    "src/lib/doc-builder.js|INFO|tests are stale/missing for the new naming: they import `buildbranddoc`, call `/api/build-doc`, and assert `# brand documentation` which no longer exists (`test/doc-builder.test.js:9`, `test/doc-builder.test.js:32`, `test/server.test.js:205`, `src/lib/doc-builder.js:38`, `src/lib/doc-builder.js:92`).": {
+      "id": "src/lib/doc-builder.js|INFO|tests are stale/missing for the new naming: they import `buildbranddoc`, call `/api/build-doc`, and assert `# brand documentation` which no longer exists (`test/doc-builder.test.js:9`, `test/doc-builder.test.js:32`, `test/server.test.js:205`, `src/lib/doc-builder.js:38`, `src/lib/doc-builder.js:92`).",
+      "status": "resolved",
+      "severity": "INFO",
+      "path": "src/lib/doc-builder.js",
+      "text": "Tests are stale/missing for the new naming: they import `buildBrandDoc`, call `/api/build-doc`, and assert `# Brand Documentation` which no longer exists (`test/doc-builder.test.js:9`, `test/doc-builder.test.js:32`, `test/server.test.js:205`, `src/lib/doc-builder.js:38`, `src/lib/doc-builder.js:92`).",
+      "firstSeen": "2026-02-15T17:04:26.117Z",
+      "lastSeen": "2026-02-15T17:04:26.117Z",
+      "resolvedAt": "2026-02-15T17:04:41.258Z",
+      "occurrences": 1
+    },
+    "no-path|INFO|the rename from “brand doc” to “brand knowledge” is only partially reflected: implementation changed, but the plan and tests still target the old command/endpoint.": {
+      "id": "no-path|INFO|the rename from “brand doc” to “brand knowledge” is only partially reflected: implementation changed, but the plan and tests still target the old command/endpoint.",
+      "status": "open",
+      "severity": "INFO",
+      "path": null,
+      "text": "The rename from “brand doc” to “brand knowledge” is only partially reflected: implementation changed, but the plan and tests still target the old command/endpoint.",
+      "firstSeen": "2026-02-15T17:04:41.258Z",
+      "lastSeen": "2026-02-15T17:04:41.258Z",
+      "resolvedAt": null,
+      "occurrences": 1
+    },
+    "no-path|INFO|the new brand guidelines ui flow is wired to a missing backend endpoint, so it will fail at runtime.": {
+      "id": "no-path|INFO|the new brand guidelines ui flow is wired to a missing backend endpoint, so it will fail at runtime.",
+      "status": "open",
+      "severity": "INFO",
+      "path": null,
+      "text": "The new Brand Guidelines UI flow is wired to a missing backend endpoint, so it will fail at runtime.",
+      "firstSeen": "2026-02-15T17:04:41.258Z",
+      "lastSeen": "2026-02-15T17:04:41.258Z",
+      "resolvedAt": null,
+      "occurrences": 1
+    },
+    "no-path|INFO|test coverage no longer matches the code paths after the rename and the new mode.": {
+      "id": "no-path|INFO|test coverage no longer matches the code paths after the rename and the new mode.",
+      "status": "open",
+      "severity": "INFO",
+      "path": null,
+      "text": "Test coverage no longer matches the code paths after the rename and the new mode.",
+      "firstSeen": "2026-02-15T17:04:41.258Z",
+      "lastSeen": "2026-02-15T17:04:41.258Z",
+      "resolvedAt": null,
+      "occurrences": 1
+    },
+    "src/lib/doc-builder.js|INFO|`test/doc-builder.test.js`, `test/server.test.js`, `src/lib/doc-builder.js`: tests still import `buildbranddoc` and expect `# brand documentation`, but the module exports `buildbrandknowledge` and writes `# brand knowledge`. these tests will fail and no longer validate the current behavior.": {
+      "id": "src/lib/doc-builder.js|INFO|`test/doc-builder.test.js`, `test/server.test.js`, `src/lib/doc-builder.js`: tests still import `buildbranddoc` and expect `# brand documentation`, but the module exports `buildbrandknowledge` and writes `# brand knowledge`. these tests will fail and no longer validate the current behavior.",
+      "status": "open",
+      "severity": "INFO",
+      "path": "src/lib/doc-builder.js",
+      "text": "`test/doc-builder.test.js`, `test/server.test.js`, `src/lib/doc-builder.js`: tests still import `buildBrandDoc` and expect `# Brand Documentation`, but the module exports `buildBrandKnowledge` and writes `# Brand Knowledge`. These tests will fail and no longer validate the current behavior.",
+      "firstSeen": "2026-02-15T17:04:41.258Z",
+      "lastSeen": "2026-02-15T17:04:41.258Z",
+      "resolvedAt": null,
+      "occurrences": 1
+    },
+    "no-path|INFO|update tests to the new function/endpoint names and add coverage for the guidelines flow (sse contract + output).": {
+      "id": "no-path|INFO|update tests to the new function/endpoint names and add coverage for the guidelines flow (sse contract + output).",
+      "status": "open",
+      "severity": "INFO",
+      "path": null,
+      "text": "Update tests to the new function/endpoint names and add coverage for the guidelines flow (SSE contract + output).",
+      "firstSeen": "2026-02-15T17:04:41.258Z",
+      "lastSeen": "2026-02-15T17:04:41.258Z",
       "resolvedAt": null,
       "occurrences": 1
     }
   },
-  "updatedAt": "2026-02-15T14:28:34.396Z"
+  "updatedAt": "2026-02-15T17:04:41.258Z"
 }

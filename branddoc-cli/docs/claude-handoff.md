@@ -1,9 +1,9 @@
 # Claude Handoff (Auto-Updated)
 
-Updated: 2026-02-15T14:28:34.399Z
+Updated: 2026-02-16T15:15:39.015Z
 
 Rubric status:
-- FAIL (3 categories): Correctness, Test Coverage, Security
+- FAIL (1 categories): Test Coverage
 
 Paste this whole message into Claude Code:
 ```
@@ -11,18 +11,26 @@ Apply only the following open QA fixes, in order.
 For each item: implement the change, explain why, and update/add tests.
 
 Open items:
-- [INFO] Plan/contract mismatch: `docs/plan.md` doesn’t mention `/api/parse-file`, the `fileId` temp-store flow, or OCR system dependencies, but they are implemented in `src/server.js` and `src/lib/temp-store.js`. This is a doc gap and a missing deployment step (`pdftoppm`/`tesseract` availability).
-  - File: docs/plan.md
-  - Why: This issue impacts reliability/maintainability and should be addressed.
-  - Done when: Code updated at docs/plan.md, tests updated/added, and QA no longer reports this item as open.
-- [INFO] Anti‑bot detection isn’t applied at all tiers: `src/lib/content-extractor.js` only checks `isRealContent` for direct HTTP fetches; Puppeteer/ScrapeOWL HTML is accepted without challenge detection. This contradicts the plan and risks compiling interstitial pages as content.
-  - File: src/lib/content-extractor.js
-  - Why: This is a structural risk that can reappear in future changes.
-  - Done when: Code updated at src/lib/content-extractor.js, tests updated/added, and QA no longer reports this item as open.
-- [INFO] Missing tests: No coverage for `/api/parse-file` (PDF + OCR + `fileId` expiry/error paths) or `src/lib/temp-store.js`. No tests for GSC auth/client (`src/lib/gsc-auth.js`, `src/lib/gsc-client.js`) or CLI command flows (`src/commands/*.js`).
-  - File: src/lib/temp-store.js
+- [INFO] The rename from “brand doc” to “brand knowledge” is only partially reflected: implementation changed, but the plan and tests still target the old command/endpoint.
+  - File: (not specified)
   - Why: Coverage gap can let regressions ship silently.
-  - Done when: Code updated at src/lib/temp-store.js, tests updated/added, and QA no longer reports this item as open.
+  - Done when: Code updated, tests updated/added, and QA no longer reports this item as open.
+- [INFO] The new Brand Guidelines UI flow is wired to a missing backend endpoint, so it will fail at runtime.
+  - File: (not specified)
+  - Why: This issue impacts reliability/maintainability and should be addressed.
+  - Done when: Code updated, tests updated/added, and QA no longer reports this item as open.
+- [INFO] Test coverage no longer matches the code paths after the rename and the new mode.
+  - File: (not specified)
+  - Why: Coverage gap can let regressions ship silently.
+  - Done when: Code updated, tests updated/added, and QA no longer reports this item as open.
+- [INFO] `test/doc-builder.test.js`, `test/server.test.js`, `src/lib/doc-builder.js`: tests still import `buildBrandDoc` and expect `# Brand Documentation`, but the module exports `buildBrandKnowledge` and writes `# Brand Knowledge`. These tests will fail and no longer validate the current behavior.
+  - File: src/lib/doc-builder.js
+  - Why: Coverage gap can let regressions ship silently.
+  - Done when: Code updated at src/lib/doc-builder.js, tests updated/added, and QA no longer reports this item as open.
+- [INFO] Update tests to the new function/endpoint names and add coverage for the guidelines flow (SSE contract + output).
+  - File: (not specified)
+  - Why: Coverage gap can let regressions ship silently.
+  - Done when: Code updated, tests updated/added, and QA no longer reports this item as open.
 
 After finishing, return:
 - files changed

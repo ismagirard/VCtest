@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const { parseSitemap } = require('./lib/sitemap-parser');
 const { extractContent } = require('./lib/content-extractor');
-const { buildBrandDoc } = require('./lib/doc-builder');
+const { buildBrandKnowledge, buildBrandGuidelines } = require('./lib/doc-builder');
 const { crawlDomain } = require('./lib/domain-crawler');
 const { categorizeUrls } = require('./lib/url-categorizer');
 const { aiCategorizeUrls } = require('./lib/ai-categorizer');
@@ -200,10 +200,10 @@ function createApp() {
     }
   });
 
-  // Build brand doc with real-time progress via Server-Sent Events
+  // Build brand knowledge with real-time progress via Server-Sent Events
   // IMPORTANT: This endpoint ALWAYS returns SSE, even for validation errors.
   // The client reads the response as an SSE stream — returning JSON would break parsing.
-  app.post('/api/build-doc', async (req, res) => {
+  app.post('/api/build-knowledge', async (req, res) => {
     // Set up SSE headers FIRST so every response is a valid SSE stream
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -267,7 +267,7 @@ function createApp() {
     }
 
     try {
-      const { markdown, results } = await buildBrandDoc(urls || [], {
+      const { markdown, results } = await buildBrandKnowledge(urls || [], {
         concurrency: 3,
         customDocs: resolvedDocs,
         onProgress: (progress) => {
@@ -278,7 +278,7 @@ function createApp() {
       // Save to file
       const slug = deriveDocSlug({ urls: urls || [], customDocs: resolvedDocs });
       config.ensureDir(config.OUTPUT_DIR);
-      const filename = `brand-doc-${slug}.md`;
+      const filename = `brand-knowledge-${slug}.md`;
       const outPath = path.join(config.OUTPUT_DIR, filename);
       fs.writeFileSync(outPath, markdown);
 
@@ -309,6 +309,76 @@ function createApp() {
     console.log('  SSE stream closed.');
   });
 
+  // Build brand guidelines from uploaded documents only (no URL crawling).
+  // Uses SSE for consistency with build-knowledge, even though it's faster.
+  app.post('/api/build-guidelines', async (req, res) => {
+    // Set up SSE headers FIRST so every response is a valid SSE stream
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof res.flushHeaders === 'function') {
+      res.flushHeaders();
+    }
+
+    let clientGone = false;
+    req.on('aborted', () => { clientGone = true; });
+    res.on('close', () => { clientGone = true; });
+
+    const { customDocs } = req.body || {};
+    if (!customDocs || !customDocs.length) {
+      res.write(`data: ${JSON.stringify({ type: 'error', error: 'Documents are required' })}\n\n`);
+      return res.end();
+    }
+
+    // Resolve customDocs: replace fileId references with actual content from temp store
+    let resolvedDocs;
+    try {
+      resolvedDocs = customDocs.map(doc => {
+        if (doc.fileId) {
+          return { title: doc.title, content: tempStore.read(doc.fileId) };
+        }
+        return doc;
+      });
+    } catch (err) {
+      res.write(`data: ${JSON.stringify({ type: 'error', error: 'Document reference expired \u2014 please re-upload your files and try again. (' + err.message + ')' })}\n\n`);
+      return res.end();
+    }
+
+    try {
+      const { markdown } = await buildBrandGuidelines(resolvedDocs);
+
+      // Save to file
+      const slug = deriveDocSlug({ customDocs: resolvedDocs });
+      config.ensureDir(config.OUTPUT_DIR);
+      const filename = `brand-guidelines-${slug}.md`;
+      const outPath = path.join(config.OUTPUT_DIR, filename);
+      fs.writeFileSync(outPath, markdown);
+
+      console.log(`  Guidelines build complete. Sending done event...`);
+      const payload = `data: ${JSON.stringify({
+        type: 'done',
+        succeeded: resolvedDocs.length,
+        failed: 0,
+        savedTo: outPath,
+        docUrl: '/api/doc/' + encodeURIComponent(filename),
+      })}\n\n`;
+
+      if (!clientGone && !res.writableEnded && !res.destroyed) {
+        res.write(payload);
+      }
+    } catch (err) {
+      console.error('  Guidelines build error:', err.message);
+      if (!clientGone && !res.writableEnded && !res.destroyed) {
+        res.write(`data: ${JSON.stringify({ type: 'error', error: err.message })}\n\n`);
+      }
+    }
+
+    if (!clientGone) {
+      try { res.end(); } catch (e) {}
+    }
+  });
+
   // Error-handling middleware: catch ALL pre-route errors on the SSE endpoint.
   // express.json() can reject with several error types before routes run:
   //   entity.parse.failed  — malformed JSON
@@ -316,10 +386,10 @@ function createApp() {
   //   encoding.unsupported — bad Content-Encoding
   //   request.aborted      — client hung up during body read
   // All of these must become SSE error events, not JSON, because the client
-  // always reads /api/build-doc responses as an SSE stream.
+  // always reads SSE endpoint responses as an SSE stream.
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, _next) => {
-    if (req.path === '/api/build-doc') {
+    if (['/api/build-knowledge', '/api/build-guidelines'].includes(req.path)) {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');

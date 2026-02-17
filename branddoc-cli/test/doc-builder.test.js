@@ -6,13 +6,13 @@ jest.mock('../src/lib/content-extractor', () => ({
 }));
 
 const { extractContent } = require('../src/lib/content-extractor');
-const { buildBrandDoc } = require('../src/lib/doc-builder');
+const { buildBrandKnowledge, buildBrandGuidelines } = require('../src/lib/doc-builder');
 
 beforeEach(() => {
   extractContent.mockReset();
 });
 
-describe('buildBrandDoc', () => {
+describe('buildBrandKnowledge', () => {
   test('builds markdown from successful extractions', async () => {
     extractContent.mockImplementation(async (url) => ({
       url,
@@ -21,7 +21,7 @@ describe('buildBrandDoc', () => {
       error: null,
     }));
 
-    const { markdown, results } = await buildBrandDoc(
+    const { markdown, results } = await buildBrandKnowledge(
       ['https://a.com/', 'https://b.com/'],
       { concurrency: 2 }
     );
@@ -29,7 +29,7 @@ describe('buildBrandDoc', () => {
     expect(results).toHaveLength(2);
     expect(results[0].error).toBeNull();
     expect(results[1].error).toBeNull();
-    expect(markdown).toContain('# Brand Documentation');
+    expect(markdown).toContain('# Brand Knowledge');
     expect(markdown).toContain('Page https://a.com/');
     expect(markdown).toContain('Content for https://b.com/');
   });
@@ -42,7 +42,7 @@ describe('buildBrandDoc', () => {
       return { url, title: 'Good', markdown: 'OK', error: null };
     });
 
-    const { markdown, results } = await buildBrandDoc(
+    const { markdown, results } = await buildBrandKnowledge(
       ['https://good.com/', 'https://bad.com/'],
       { concurrency: 2 }
     );
@@ -56,14 +56,14 @@ describe('buildBrandDoc', () => {
   });
 
   test('handles empty URL list', async () => {
-    const { markdown, results } = await buildBrandDoc([], { concurrency: 2 });
+    const { markdown, results } = await buildBrandKnowledge([], { concurrency: 2 });
     expect(results).toHaveLength(0);
-    expect(markdown).toContain('# Brand Documentation');
+    expect(markdown).toContain('# Brand Knowledge');
     expect(markdown).toContain('0 pages extracted');
   });
 
   test('includes custom documents in output', async () => {
-    const { markdown } = await buildBrandDoc([], {
+    const { markdown } = await buildBrandKnowledge([], {
       concurrency: 2,
       customDocs: [{ title: 'My Brief', content: 'Custom content here' }],
     });
@@ -79,7 +79,7 @@ describe('buildBrandDoc', () => {
     }));
 
     const progress = [];
-    await buildBrandDoc(
+    await buildBrandKnowledge(
       ['https://a.com/', 'https://b.com/', 'https://c.com/'],
       {
         concurrency: 1,
@@ -105,11 +105,47 @@ describe('buildBrandDoc', () => {
       return { url, title: 'T', markdown: 'M', error: null };
     });
 
-    await buildBrandDoc(
+    await buildBrandKnowledge(
       ['https://1.com/', 'https://2.com/', 'https://3.com/', 'https://4.com/'],
       { concurrency: 2 }
     );
 
     expect(maxConcurrent).toBeLessThanOrEqual(2);
+  });
+});
+
+describe('buildBrandGuidelines', () => {
+  test('builds markdown from custom documents', async () => {
+    const { markdown } = await buildBrandGuidelines([
+      { title: 'Tone of Voice', content: 'Be friendly and professional.' },
+      { title: 'Style Rules', content: 'Use active voice. Keep sentences short.' },
+    ]);
+
+    expect(markdown).toContain('# Brand Guidelines');
+    expect(markdown).toContain('2 documents included');
+    expect(markdown).toContain('Tone of Voice');
+    expect(markdown).toContain('Be friendly and professional.');
+    expect(markdown).toContain('Style Rules');
+    expect(markdown).toContain('Use active voice.');
+    // Table of contents
+    expect(markdown).toContain('#guideline-1');
+    expect(markdown).toContain('#guideline-2');
+  });
+
+  test('handles empty document list', async () => {
+    const { markdown } = await buildBrandGuidelines([]);
+    expect(markdown).toContain('# Brand Guidelines');
+    expect(markdown).toContain('No documents provided');
+  });
+
+  test('handles single document', async () => {
+    const { markdown } = await buildBrandGuidelines([
+      { title: 'Writing Guide', content: 'Write concisely.' },
+    ]);
+
+    expect(markdown).toContain('# Brand Guidelines');
+    expect(markdown).toContain('1 document included');
+    expect(markdown).toContain('Writing Guide');
+    expect(markdown).toContain('Write concisely.');
   });
 });

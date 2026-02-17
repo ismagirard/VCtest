@@ -1,9 +1,11 @@
 # QA Open Issues
 
-Updated: 2026-02-15T14:28:34.397Z
+Updated: 2026-02-16T15:15:39.014Z
 
-Open count: 3
+Open count: 5
 
-- [ ] [INFO] Plan/contract mismatch: `docs/plan.md` doesn’t mention `/api/parse-file`, the `fileId` temp-store flow, or OCR system dependencies, but they are implemented in `src/server.js` and `src/lib/temp-store.js`. This is a doc gap and a missing deployment step (`pdftoppm`/`tesseract` availability). (docs/plan.md)
-- [ ] [INFO] Anti‑bot detection isn’t applied at all tiers: `src/lib/content-extractor.js` only checks `isRealContent` for direct HTTP fetches; Puppeteer/ScrapeOWL HTML is accepted without challenge detection. This contradicts the plan and risks compiling interstitial pages as content. (src/lib/content-extractor.js)
-- [ ] [INFO] Missing tests: No coverage for `/api/parse-file` (PDF + OCR + `fileId` expiry/error paths) or `src/lib/temp-store.js`. No tests for GSC auth/client (`src/lib/gsc-auth.js`, `src/lib/gsc-client.js`) or CLI command flows (`src/commands/*.js`). (src/lib/temp-store.js)
+- [ ] [INFO] The rename from “brand doc” to “brand knowledge” is only partially reflected: implementation changed, but the plan and tests still target the old command/endpoint.
+- [ ] [INFO] The new Brand Guidelines UI flow is wired to a missing backend endpoint, so it will fail at runtime.
+- [ ] [INFO] Test coverage no longer matches the code paths after the rename and the new mode.
+- [ ] [INFO] `test/doc-builder.test.js`, `test/server.test.js`, `src/lib/doc-builder.js`: tests still import `buildBrandDoc` and expect `# Brand Documentation`, but the module exports `buildBrandKnowledge` and writes `# Brand Knowledge`. These tests will fail and no longer validate the current behavior. (src/lib/doc-builder.js)
+- [ ] [INFO] Update tests to the new function/endpoint names and add coverage for the guidelines flow (SSE contract + output).
