@@ -3,8 +3,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/components/sign-out-button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-export function Nav() {
+function getInitials(firstName: string | null, lastName: string | null): string {
+  const f = firstName?.[0]?.toUpperCase() || "";
+  const l = lastName?.[0]?.toUpperCase() || "";
+  return f + l || "?";
+}
+
+interface NavProps {
+  avatarBase64?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+}
+
+export function Nav({ avatarBase64, firstName, lastName }: NavProps) {
   const pathname = usePathname();
 
   return (
@@ -25,7 +38,17 @@ export function Nav() {
             Profile
           </Link>
         </div>
-        <SignOutButton />
+        <div className="flex items-center gap-3">
+          <Link href="/profile">
+            <Avatar className="size-8">
+              <AvatarImage src={avatarBase64 ?? undefined} alt="Profile" />
+              <AvatarFallback className="text-xs">
+                {getInitials(firstName ?? null, lastName ?? null)}
+              </AvatarFallback>
+            </Avatar>
+          </Link>
+          <SignOutButton />
+        </div>
       </div>
     </nav>
   );

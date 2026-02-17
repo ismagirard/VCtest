@@ -14,14 +14,19 @@ async function main() {
 
   const user = await prisma.user.upsert({
     where: { email: "admin@grocery-planner.local" },
-    update: {},
+    update: {
+      firstName: "Admin",
+    },
     create: {
       email: "admin@grocery-planner.local",
-      name: "Admin",
+      firstName: "Admin",
       password: hashedPassword,
       householdSize: 1,
       mealsPerDay: 3,
       cookingTimePreference: "moderate",
+      budgetPreference: "moderate",
+      groceryFrequency: "weekly",
+      agentMode: "ask",
     },
   });
 

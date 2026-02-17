@@ -8,15 +8,36 @@ datasource db {
 }
 
 model User {
-  id                    String   @id @default(cuid())
-  email                 String   @unique
-  name                  String?
-  password              String
-  householdSize         Int      @default(1)
-  mealsPerDay           Int      @default(3)
-  cookingTimePreference String   @default("moderate")
-  location              String?
+  id            String  @id @default(cuid())
+  email         String  @unique
+  firstName     String?
+  lastName      String?
+  password      String
+  avatarBase64  String?
+
+  // Address
+  streetAddress String?
+  city          String?
+  province      String  @default("QC")
+  postalCode    String?
+
+  // Cooking preferences
+  householdSize         Int    @default(1)
+  mealsPerDay           Int    @default(3)
+  cookingTimePreference String @default("moderate")
   preferredStores       String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+
+  // Budget & grocery agent
+  budgetPreference String @default("moderate")
+  groceryDay       String?
+  groceryFrequency String @default("weekly")
+  agentMode        String @default("ask")
+
+  // Notifications
+  emailNotifications Boolean @default(true)
+  smsNotifications   Boolean @default(false)
+  pushNotifications  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
