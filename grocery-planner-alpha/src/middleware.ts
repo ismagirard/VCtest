@@ -1,29 +1,7 @@
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import NextAuth from "next-auth";
+import { authConfig } from "@/lib/auth.config";
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isOnLoginPage = req.nextUrl.pathname === "/login";
-  const isApiRoute = req.nextUrl.pathname.startsWith("/api/");
-
-  // Let API routes handle their own auth (return JSON 401, not redirect)
-  if (isApiRoute) {
-    return NextResponse.next();
-  }
-
-  if (isOnLoginPage) {
-    if (isLoggedIn) {
-      return NextResponse.redirect(new URL("/", req.nextUrl));
-    }
-    return NextResponse.next();
-  }
-
-  if (!isLoggedIn) {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
-  }
-
-  return NextResponse.next();
-});
+export default NextAuth(authConfig).auth;
 
 export const config = {
   matcher: [
