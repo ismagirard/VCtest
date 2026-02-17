@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/ismaelgirard/repos/VCtest log --oneline -20)",
+      "Bash(npm install:*)",
+      "Bash(node src/index.js:*)",
+      "Bash(node:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:scrapeowl.com)",
+      "Bash(curl:*)",
+      "Bash(npx jest:*)",
+      "Bash(npm test)",
+      "Bash(# Test 4: Oversized file → 413 echo \"\"=== Test 4: Oversized file \\(21MB\\) ===\"\" dd if=/dev/zero of=/tmp/test-big.pdf bs=1048576 count=21 curl -s -X POST http://localhost:3000/api/parse-file -F \"\"file=@/tmp/test-big.pdf\"\")",
+      "Bash(brew list:*)",
+      "Bash(brew install:*)",
+      "Bash(pdftoppm:*)",
+      "Bash(git status:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(kill:*)",
+      "Bash(bash)",
+      "Bash(openssl rand:*)",
+      "Bash(git mv:*)",
+      "Bash(npx prisma db execute:*)",
+      "Bash(sqlite3:*)",
+      "Bash(npm ls:*)"
+    ]
+  }
+}

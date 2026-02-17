@@ -10,3 +10,17 @@ credentials/
 
 # OS
 .DS_Store
+
+# Next.js
+.next/
+
+# Prisma SQLite
+*.db
+*.db-journal
+
+# Vercel
+.vercel
+
+# TypeScript build
+*.tsbuildinfo
+next-env.d.ts
