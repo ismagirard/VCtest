@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/components/sign-out-button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { t } from "@/lib/i18n";
 
 function getInitials(firstName: string | null, lastName: string | null): string {
   const f = firstName?.[0]?.toUpperCase() || "";
@@ -25,7 +26,7 @@ export function Nav({ avatarBase64, firstName, lastName }: NavProps) {
       <div className="max-w-4xl mx-auto flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-6">
           <Link href="/" className="font-bold text-lg">
-            Grocery Planner
+            {t("nav.appName")}
           </Link>
           <Link
             href="/profile"
@@ -35,13 +36,13 @@ export function Nav({ avatarBase64, firstName, lastName }: NavProps) {
                 : "text-muted-foreground"
             }`}
           >
-            Profile
+            {t("nav.profile")}
           </Link>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/profile">
             <Avatar className="size-8">
-              <AvatarImage src={avatarBase64 ?? undefined} alt="Profile" />
+              <AvatarImage src={avatarBase64 ?? undefined} alt={t("nav.avatarAlt")} />
               <AvatarFallback className="text-xs">
                 {getInitials(firstName ?? null, lastName ?? null)}
               </AvatarFallback>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { t } from "@/lib/i18n";
 
 const VALID_COOKING_PREFS = ["quick", "moderate", "elaborate"];
 const VALID_BUDGET_PREFS = ["economic", "moderate", "dontcare"];
@@ -12,7 +13,7 @@ export async function GET() {
   const session = await auth();
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: t("api.unauthorized") }, { status: 401 });
   }
 
   const user = await prisma.user.findUnique({
@@ -44,7 +45,7 @@ export async function GET() {
   });
 
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ error: t("api.userNotFound") }, { status: 404 });
   }
 
   return NextResponse.json({
@@ -59,7 +60,7 @@ export async function PUT(request: Request) {
   const session = await auth();
 
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: t("api.unauthorized") }, { status: 401 });
   }
 
   const body = await request.json();
@@ -70,7 +71,7 @@ export async function PUT(request: Request) {
     !VALID_COOKING_PREFS.includes(body.cookingTimePreference)
   ) {
     return NextResponse.json(
-      { error: "Invalid cooking time preference" },
+      { error: t("api.invalidCookingPref") },
       { status: 400 }
     );
   }
@@ -80,7 +81,7 @@ export async function PUT(request: Request) {
     const size = Number(body.householdSize);
     if (!Number.isInteger(size) || size < 1 || size > 20) {
       return NextResponse.json(
-        { error: "Household size must be between 1 and 20" },
+        { error: t("api.householdSizeRange") },
         { status: 400 }
       );
     }
@@ -91,7 +92,7 @@ export async function PUT(request: Request) {
     const meals = Number(body.mealsPerDay);
     if (!Number.isInteger(meals) || meals < 1 || meals > 10) {
       return NextResponse.json(
-        { error: "Meals per day must be between 1 and 10" },
+        { error: t("api.mealsPerDayRange") },
         { status: 400 }
       );
     }
@@ -103,7 +104,7 @@ export async function PUT(request: Request) {
     !VALID_BUDGET_PREFS.includes(body.budgetPreference)
   ) {
     return NextResponse.json(
-      { error: "Invalid budget preference" },
+      { error: t("api.invalidBudgetPref") },
       { status: 400 }
     );
   }
@@ -115,7 +116,7 @@ export async function PUT(request: Request) {
     !VALID_DAYS.includes(body.groceryDay)
   ) {
     return NextResponse.json(
-      { error: "Invalid grocery day" },
+      { error: t("api.invalidGroceryDay") },
       { status: 400 }
     );
   }
@@ -126,7 +127,7 @@ export async function PUT(request: Request) {
     !VALID_FREQUENCIES.includes(body.groceryFrequency)
   ) {
     return NextResponse.json(
-      { error: "Invalid grocery frequency" },
+      { error: t("api.invalidGroceryFreq") },
       { status: 400 }
     );
   }
@@ -134,7 +135,7 @@ export async function PUT(request: Request) {
   // Validate agent mode
   if (body.agentMode && !VALID_AGENT_MODES.includes(body.agentMode)) {
     return NextResponse.json(
-      { error: "Invalid agent mode" },
+      { error: t("api.invalidAgentMode") },
       { status: 400 }
     );
   }
@@ -143,7 +144,7 @@ export async function PUT(request: Request) {
   for (const field of ["emailNotifications", "smsNotifications", "pushNotifications"]) {
     if (body[field] !== undefined && typeof body[field] !== "boolean") {
       return NextResponse.json(
-        { error: `${field} must be a boolean` },
+        { error: `${field} ${t("api.booleanRequired")}` },
         { status: 400 }
       );
     }

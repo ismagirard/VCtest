@@ -5,6 +5,7 @@ import { AccountTab } from "./profile-account-tab";
 import { PreferencesTab } from "./profile-preferences-tab";
 import { NotificationsTab } from "./profile-notifications-tab";
 import { User, Settings, Bell } from "lucide-react";
+import { t } from "@/lib/i18n";
 
 export interface ProfileData {
   id: string;
@@ -35,15 +36,15 @@ export function ProfileTabs({ initialData }: { initialData: ProfileData }) {
       <TabsList className="grid w-full grid-cols-3">
         <TabsTrigger value="account" className="flex items-center gap-2">
           <User className="size-4" />
-          Account
+          {t("tabs.account")}
         </TabsTrigger>
         <TabsTrigger value="preferences" className="flex items-center gap-2">
           <Settings className="size-4" />
-          Preferences
+          {t("tabs.preferences")}
         </TabsTrigger>
         <TabsTrigger value="notifications" className="flex items-center gap-2">
           <Bell className="size-4" />
-          Notifications
+          {t("tabs.notifications")}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="account" className="mt-6">

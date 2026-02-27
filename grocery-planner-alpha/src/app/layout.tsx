@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { t } from "@/lib/i18n";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Grocery Planner",
-  description: "AI-powered grocery planning for Quebec",
+  title: t("meta.title"),
+  description: t("meta.description"),
 };
 
 export default function RootLayout({
@@ -24,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr-CA">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

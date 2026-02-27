@@ -15,59 +15,60 @@ import {
 } from "@/components/ui/select";
 import { DollarSign, Clock, Bot } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 import type { ProfileData } from "./profile-tabs";
 
 const BUDGET_OPTIONS = [
   {
     value: "economic",
-    label: "Economic",
-    description: "Focused on savings",
-    icon: "💰",
+    label: t("preferences.budgetEconomic"),
+    description: t("preferences.budgetEconomicDesc"),
+    icon: "\u{1F4B0}",
   },
   {
     value: "moderate",
-    label: "Moderate",
-    description: "Balance of time and savings",
-    icon: "⚖️",
+    label: t("preferences.budgetModerate"),
+    description: t("preferences.budgetModerateDesc"),
+    icon: "\u2696\uFE0F",
   },
   {
     value: "dontcare",
-    label: "Don't care",
-    description: "Focused only on time",
-    icon: "⏱️",
+    label: t("preferences.budgetDontCare"),
+    description: t("preferences.budgetDontCareDesc"),
+    icon: "\u23F1\uFE0F",
   },
 ];
 
 const AGENT_MODE_OPTIONS = [
   {
     value: "auto",
-    label: "Plan before grocery",
-    description: "Agent proactively creates your grocery list before your shopping day",
-    icon: "🤖",
+    label: t("preferences.agentAuto"),
+    description: t("preferences.agentAutoDesc"),
+    icon: "\u{1F916}",
   },
   {
     value: "wait",
-    label: "Wait for me to chat",
-    description: "Agent only acts when you start a conversation",
-    icon: "💬",
+    label: t("preferences.agentWait"),
+    description: t("preferences.agentWaitDesc"),
+    icon: "\u{1F4AC}",
   },
   {
     value: "ask",
-    label: "Ask questions first",
-    description: "Agent asks your preferences before creating a plan",
-    icon: "❓",
+    label: t("preferences.agentAsk"),
+    description: t("preferences.agentAskDesc"),
+    icon: "\u2753",
   },
 ];
 
 const DAYS = [
-  { value: "none", label: "No preference" },
-  { value: "monday", label: "Monday" },
-  { value: "tuesday", label: "Tuesday" },
-  { value: "wednesday", label: "Wednesday" },
-  { value: "thursday", label: "Thursday" },
-  { value: "friday", label: "Friday" },
-  { value: "saturday", label: "Saturday" },
-  { value: "sunday", label: "Sunday" },
+  { value: "none", label: t("days.none") },
+  { value: "monday", label: t("days.monday") },
+  { value: "tuesday", label: t("days.tuesday") },
+  { value: "wednesday", label: t("days.wednesday") },
+  { value: "thursday", label: t("days.thursday") },
+  { value: "friday", label: t("days.friday") },
+  { value: "saturday", label: t("days.saturday") },
+  { value: "sunday", label: t("days.sunday") },
 ];
 
 function CardSelector({
@@ -128,13 +129,13 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
     // Validate numbers on save
     const householdSize = parseInt(householdSizeStr);
     if (isNaN(householdSize) || householdSize < 1 || householdSize > 20) {
-      toast.error("Household size must be between 1 and 20");
+      toast.error(t("preferences.householdSizeError"));
       return;
     }
 
     const mealsPerDay = parseInt(mealsPerDayStr);
     if (isNaN(mealsPerDay) || mealsPerDay < 1 || mealsPerDay > 10) {
-      toast.error("Meals per day must be between 1 and 10");
+      toast.error(t("preferences.mealsPerDayError"));
       return;
     }
 
@@ -156,12 +157,12 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to save");
+        throw new Error(data.error || t("preferences.failedSave"));
       }
 
-      toast.success("Preferences updated");
+      toast.success(t("preferences.preferencesUpdated"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save");
+      toast.error(err instanceof Error ? err.message : t("preferences.failedSave"));
     } finally {
       setSaving(false);
     }
@@ -174,13 +175,13 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="size-5" />
-            Cooking Preferences
+            {t("preferences.cookingTitle")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="householdSize">Household Size</Label>
+              <Label htmlFor="householdSize">{t("preferences.householdSize")}</Label>
               <Input
                 id="householdSize"
                 inputMode="numeric"
@@ -191,7 +192,7 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="mealsPerDay">Meals Per Day</Label>
+              <Label htmlFor="mealsPerDay">{t("preferences.mealsPerDay")}</Label>
               <Input
                 id="mealsPerDay"
                 inputMode="numeric"
@@ -204,15 +205,15 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="cookingTime">Cooking Time Preference</Label>
+            <Label htmlFor="cookingTime">{t("preferences.cookingTime")}</Label>
             <Select value={cookingTimePreference} onValueChange={setCookingTimePreference}>
               <SelectTrigger id="cookingTime">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="quick">Quick (under 30 min)</SelectItem>
-                <SelectItem value="moderate">Moderate (30-60 min)</SelectItem>
-                <SelectItem value="elaborate">Elaborate (60+ min)</SelectItem>
+                <SelectItem value="quick">{t("preferences.cookingQuick")}</SelectItem>
+                <SelectItem value="moderate">{t("preferences.cookingModerate")}</SelectItem>
+                <SelectItem value="elaborate">{t("preferences.cookingElaborate")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -224,10 +225,10 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <DollarSign className="size-5" />
-            Budget Preference
+            {t("preferences.budgetTitle")}
           </CardTitle>
           <CardDescription>
-            How should the AI prioritize your grocery planning?
+            {t("preferences.budgetDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -244,19 +245,19 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Bot className="size-5" />
-            Grocery Agent
+            {t("preferences.agentTitle")}
           </CardTitle>
           <CardDescription>
-            Configure how and when the AI assistant helps you
+            {t("preferences.agentDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="groceryDay">Shopping Day</Label>
+              <Label htmlFor="groceryDay">{t("preferences.shoppingDay")}</Label>
               <Select value={groceryDay} onValueChange={setGroceryDay}>
                 <SelectTrigger id="groceryDay">
-                  <SelectValue placeholder="Select a day" />
+                  <SelectValue placeholder={t("preferences.selectDay")} />
                 </SelectTrigger>
                 <SelectContent>
                   {DAYS.map((d) => (
@@ -268,15 +269,15 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="groceryFrequency">How Often</Label>
+              <Label htmlFor="groceryFrequency">{t("preferences.howOften")}</Label>
               <Select value={groceryFrequency} onValueChange={setGroceryFrequency}>
                 <SelectTrigger id="groceryFrequency">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="biweekly">Every 2 Weeks</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="weekly">{t("preferences.weekly")}</SelectItem>
+                  <SelectItem value="biweekly">{t("preferences.biweekly")}</SelectItem>
+                  <SelectItem value="monthly">{t("preferences.monthly")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -285,7 +286,7 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
           <Separator />
 
           <div className="space-y-2">
-            <Label>Agent Behavior</Label>
+            <Label>{t("preferences.agentBehavior")}</Label>
             <CardSelector
               options={AGENT_MODE_OPTIONS}
               value={agentMode}
@@ -296,7 +297,7 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
       </Card>
 
       <Button onClick={handleSave} disabled={saving}>
-        {saving ? "Saving..." : "Save Preferences"}
+        {saving ? t("preferences.saving") : t("preferences.savePreferences")}
       </Button>
     </div>
   );
