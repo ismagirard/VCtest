@@ -24,22 +24,23 @@ import {
 } from "@/components/ui/select";
 import { Camera, Trash2, Lock } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 import type { ProfileData } from "./profile-tabs";
 
 const PROVINCES = [
-  { value: "AB", label: "Alberta" },
-  { value: "BC", label: "British Columbia" },
-  { value: "MB", label: "Manitoba" },
-  { value: "NB", label: "New Brunswick" },
-  { value: "NL", label: "Newfoundland and Labrador" },
-  { value: "NS", label: "Nova Scotia" },
-  { value: "NT", label: "Northwest Territories" },
-  { value: "NU", label: "Nunavut" },
-  { value: "ON", label: "Ontario" },
-  { value: "PE", label: "Prince Edward Island" },
-  { value: "QC", label: "Quebec" },
-  { value: "SK", label: "Saskatchewan" },
-  { value: "YT", label: "Yukon" },
+  { value: "AB", label: t("provinces.AB") },
+  { value: "BC", label: t("provinces.BC") },
+  { value: "MB", label: t("provinces.MB") },
+  { value: "NB", label: t("provinces.NB") },
+  { value: "NL", label: t("provinces.NL") },
+  { value: "NS", label: t("provinces.NS") },
+  { value: "NT", label: t("provinces.NT") },
+  { value: "NU", label: t("provinces.NU") },
+  { value: "ON", label: t("provinces.ON") },
+  { value: "PE", label: t("provinces.PE") },
+  { value: "QC", label: t("provinces.QC") },
+  { value: "SK", label: t("provinces.SK") },
+  { value: "YT", label: t("provinces.YT") },
 ];
 
 interface AddressSuggestion {
@@ -115,7 +116,7 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error(t("account.selectImageFile"));
       return;
     }
 
@@ -129,14 +130,14 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to upload avatar");
+        throw new Error(data.error || t("account.failedUploadPhoto"));
       }
 
       setAvatar(base64);
-      toast.success("Photo updated");
+      toast.success(t("account.photoUpdated"));
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload photo");
+      toast.error(err instanceof Error ? err.message : t("account.failedUploadPhoto"));
     }
 
     // Reset file input
@@ -146,12 +147,12 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
   const handleAvatarRemove = async () => {
     try {
       const res = await fetch("/api/profile/avatar", { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to remove avatar");
+      if (!res.ok) throw new Error(t("account.failedRemovePhoto"));
       setAvatar(null);
-      toast.success("Photo removed");
+      toast.success(t("account.photoRemoved"));
       router.refresh();
     } catch {
-      toast.error("Failed to remove photo");
+      toast.error(t("account.failedRemovePhoto"));
     }
   };
 
@@ -212,13 +213,13 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to save");
+        throw new Error(data.error || t("account.failedSave"));
       }
 
-      toast.success("Account updated");
+      toast.success(t("account.accountUpdated"));
       router.refresh();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to save");
+      toast.error(err instanceof Error ? err.message : t("account.failedSave"));
     } finally {
       setSaving(false);
     }
@@ -226,11 +227,11 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
 
   const handlePasswordChange = async () => {
     if (newPassword !== confirmPassword) {
-      toast.error("Passwords don't match");
+      toast.error(t("account.passwordsDontMatch"));
       return;
     }
     if (newPassword.length < 8) {
-      toast.error("Password must be at least 8 characters");
+      toast.error(t("account.passwordMinLength"));
       return;
     }
 
@@ -244,16 +245,16 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to change password");
+        throw new Error(data.error || t("account.failedChangePassword"));
       }
 
-      toast.success("Password changed");
+      toast.success(t("account.passwordChanged"));
       setPasswordOpen(false);
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to change password");
+      toast.error(err instanceof Error ? err.message : t("account.failedChangePassword"));
     } finally {
       setChangingPassword(false);
     }
@@ -262,13 +263,13 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Account Information</CardTitle>
+        <CardTitle>{t("account.title")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Avatar */}
         <div className="flex items-center gap-4">
           <Avatar className="size-20">
-            <AvatarImage src={avatar ?? undefined} alt="Profile" />
+            <AvatarImage src={avatar ?? undefined} alt={t("nav.avatarAlt")} />
             <AvatarFallback className="text-lg">
               {getInitials(firstName, lastName)}
             </AvatarFallback>
@@ -287,7 +288,7 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
               onClick={() => fileInputRef.current?.click()}
             >
               <Camera className="size-4 mr-2" />
-              Change Photo
+              {t("account.changePhoto")}
             </Button>
             {avatar && (
               <Button
@@ -297,7 +298,7 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
                 className="text-destructive"
               >
                 <Trash2 className="size-4 mr-2" />
-                Remove
+                {t("account.remove")}
               </Button>
             )}
           </div>
@@ -308,28 +309,28 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
         {/* Name */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
+            <Label htmlFor="firstName">{t("account.firstName")}</Label>
             <Input
               id="firstName"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              placeholder="First name"
+              placeholder={t("account.firstNamePlaceholder")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
+            <Label htmlFor="lastName">{t("account.lastName")}</Label>
             <Input
               id="lastName"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              placeholder="Last name"
+              placeholder={t("account.lastNamePlaceholder")}
             />
           </div>
         </div>
 
         {/* Email */}
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t("account.email")}</Label>
           <Input
             id="email"
             type="email"
@@ -340,21 +341,21 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
 
         {/* Password */}
         <div className="space-y-2">
-          <Label>Password</Label>
+          <Label>{t("account.password")}</Label>
           <Dialog open={passwordOpen} onOpenChange={setPasswordOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <Lock className="size-4 mr-2" />
-                Change Password
+                {t("account.changePassword")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Change Password</DialogTitle>
+                <DialogTitle>{t("account.changePassword")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 <div className="space-y-2">
-                  <Label htmlFor="currentPassword">Current Password</Label>
+                  <Label htmlFor="currentPassword">{t("account.currentPassword")}</Label>
                   <Input
                     id="currentPassword"
                     type="password"
@@ -363,17 +364,17 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="newPassword">New Password</Label>
+                  <Label htmlFor="newPassword">{t("account.newPassword")}</Label>
                   <Input
                     id="newPassword"
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Minimum 8 characters"
+                    placeholder={t("account.newPasswordPlaceholder")}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Label htmlFor="confirmPassword">{t("account.confirmPassword")}</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -386,7 +387,7 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
                   disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
                   className="w-full"
                 >
-                  {changingPassword ? "Changing..." : "Update Password"}
+                  {changingPassword ? t("account.changingPassword") : t("account.updatePassword")}
                 </Button>
               </div>
             </DialogContent>
@@ -397,15 +398,15 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
 
         {/* Address */}
         <div className="space-y-4">
-          <h3 className="text-sm font-medium">Address</h3>
+          <h3 className="text-sm font-medium">{t("account.address")}</h3>
           <div className="relative space-y-2">
-            <Label htmlFor="streetAddress">Street Address</Label>
+            <Label htmlFor="streetAddress">{t("account.streetAddress")}</Label>
             <Input
               id="streetAddress"
               value={streetAddress}
               onChange={(e) => handleAddressSearch(e.target.value)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              placeholder="Start typing your address..."
+              placeholder={t("account.streetAddressPlaceholder")}
             />
             {showSuggestions && suggestions.length > 0 && (
               <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-background border rounded-md shadow-lg max-h-48 overflow-y-auto">
@@ -424,16 +425,16 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="city">{t("account.city")}</Label>
               <Input
                 id="city"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                placeholder="City"
+                placeholder={t("account.cityPlaceholder")}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="province">Province</Label>
+              <Label htmlFor="province">{t("account.province")}</Label>
               <Select value={province} onValueChange={setProvince}>
                 <SelectTrigger id="province">
                   <SelectValue />
@@ -449,12 +450,12 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
             </div>
           </div>
           <div className="space-y-2 max-w-[200px]">
-            <Label htmlFor="postalCode">Postal Code</Label>
+            <Label htmlFor="postalCode">{t("account.postalCode")}</Label>
             <Input
               id="postalCode"
               value={postalCode}
               onChange={(e) => setPostalCode(e.target.value)}
-              placeholder="H2X 1Y4"
+              placeholder={t("account.postalCodePlaceholder")}
             />
           </div>
         </div>
@@ -462,7 +463,7 @@ export function AccountTab({ initialData }: { initialData: ProfileData }) {
         <Separator />
 
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save Changes"}
+          {saving ? t("account.saving") : t("account.saveChanges")}
         </Button>
       </CardContent>
     </Card>

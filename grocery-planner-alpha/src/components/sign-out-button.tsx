@@ -2,6 +2,7 @@
 
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
+import { t } from "@/lib/i18n";
 
 export function SignOutButton() {
   return (
@@ -10,7 +11,7 @@ export function SignOutButton() {
       size="sm"
       onClick={() => signOut({ callbackUrl: "/login" })}
     >
-      Sign out
+      {t("nav.signOut")}
     </Button>
   );
 }

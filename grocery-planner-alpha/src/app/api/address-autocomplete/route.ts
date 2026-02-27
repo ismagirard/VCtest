@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { t } from "@/lib/i18n";
 
 export async function GET(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: t("api.unauthorized") }, { status: 401 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
   const apiKey = process.env.GEOAPIFY_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Address autocomplete not configured" },
+      { error: t("api.addressNotConfigured") },
       { status: 500 }
     );
   }
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ results });
   } catch {
     return NextResponse.json(
-      { error: "Failed to fetch address suggestions" },
+      { error: t("api.addressFetchFailed") },
       { status: 500 }
     );
   }

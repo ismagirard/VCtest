@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { ProfileTabs } from "@/components/profile-tabs";
+import { t } from "@/lib/i18n";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -43,7 +44,7 @@ export default async function ProfilePage() {
   return (
     <div className="flex min-h-[calc(100vh-57px)] flex-col items-center p-8">
       <div className="w-full max-w-2xl">
-        <h1 className="text-3xl font-bold mb-8">Your Profile</h1>
+        <h1 className="text-3xl font-bold mb-8">{t("profilePage.heading")}</h1>
         <ProfileTabs
           initialData={{
             ...user,

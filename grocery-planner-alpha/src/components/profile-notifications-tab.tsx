@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Mail, MessageSquare, Bell } from "lucide-react";
 import { toast } from "sonner";
+import { t } from "@/lib/i18n";
 import type { ProfileData } from "./profile-tabs";
 
 export function NotificationsTab({ initialData }: { initialData: ProfileData }) {
@@ -28,19 +29,19 @@ export function NotificationsTab({ initialData }: { initialData: ProfileData }) 
         body: JSON.stringify({ [field]: value }),
       });
 
-      if (!res.ok) throw new Error("Failed to save");
-      toast.success("Notification preference saved");
+      if (!res.ok) throw new Error(t("notifications.failedSave"));
+      toast.success(t("notifications.saved"));
     } catch {
-      toast.error("Failed to update notification preference");
+      toast.error(t("notifications.failedSave"));
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notification Preferences</CardTitle>
+        <CardTitle>{t("notifications.title")}</CardTitle>
         <CardDescription>
-          Choose how you want to be notified about grocery plans and reminders
+          {t("notifications.description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -49,10 +50,10 @@ export function NotificationsTab({ initialData }: { initialData: ProfileData }) 
             <Mail className="size-5 text-muted-foreground" />
             <div className="space-y-0.5">
               <Label htmlFor="emailNotif" className="text-sm font-medium">
-                Email Notifications
+                {t("notifications.email")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                Receive grocery lists and reminders via email
+                {t("notifications.emailDesc")}
               </p>
             </div>
           </div>
@@ -73,10 +74,10 @@ export function NotificationsTab({ initialData }: { initialData: ProfileData }) 
             <MessageSquare className="size-5 text-muted-foreground" />
             <div className="space-y-0.5">
               <Label htmlFor="smsNotif" className="text-sm font-medium">
-                SMS Notifications
+                {t("notifications.sms")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                Get text messages with shopping reminders
+                {t("notifications.smsDesc")}
               </p>
             </div>
           </div>
@@ -97,10 +98,10 @@ export function NotificationsTab({ initialData }: { initialData: ProfileData }) 
             <Bell className="size-5 text-muted-foreground" />
             <div className="space-y-0.5">
               <Label htmlFor="pushNotif" className="text-sm font-medium">
-                Push Notifications
+                {t("notifications.push")}
               </Label>
               <p className="text-xs text-muted-foreground">
-                Receive browser push notifications for updates
+                {t("notifications.pushDesc")}
               </p>
             </div>
           </div>
