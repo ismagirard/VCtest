@@ -1,3 +1,5 @@
+type Locale = "fr" | "en";
+
 const fr = {
   // ── Metadata & Layout ──
   meta: {
@@ -103,6 +105,12 @@ const fr = {
 
   // ── Preferences Tab ──
   preferences: {
+    languageTitle: "Langue",
+    languageDescription: "Choisissez la langue de l'application",
+    langFr: "Français",
+    langFrDesc: "Interface en français (Canada)",
+    langEn: "English",
+    langEnDesc: "Interface in English (Canada)",
     cookingTitle: "Préférences de cuisson",
     householdSize: "Taille du foyer",
     mealsPerDay: "Repas par jour",
@@ -191,7 +199,207 @@ const fr = {
   },
 } as const;
 
-// Type-safe dot-notation key lookup
+const en = {
+  meta: {
+    title: "Grocery Planner",
+    description: "AI-powered grocery planning for Quebec",
+  },
+  nav: {
+    appName: "Grocery Planner",
+    profile: "Profile",
+    signOut: "Sign Out",
+    avatarAlt: "Profile",
+  },
+  login: {
+    title: "Grocery Planner",
+    description: "Sign in to your account",
+    email: "Email",
+    password: "Password",
+    signIn: "Sign In",
+    signingIn: "Signing in...",
+    error: "Invalid email or password",
+  },
+  home: {
+    heading: "Grocery Planner",
+    welcome: "Welcome,",
+  },
+  profilePage: {
+    heading: "Your Profile",
+  },
+  tabs: {
+    account: "Account",
+    preferences: "Preferences",
+    notifications: "Notifications",
+  },
+  account: {
+    title: "Account Information",
+    changePhoto: "Change Photo",
+    remove: "Remove",
+    firstName: "First Name",
+    firstNamePlaceholder: "First name",
+    lastName: "Last Name",
+    lastNamePlaceholder: "Last name",
+    email: "Email",
+    password: "Password",
+    changePassword: "Change Password",
+    currentPassword: "Current Password",
+    newPassword: "New Password",
+    newPasswordPlaceholder: "Minimum 8 characters",
+    confirmPassword: "Confirm New Password",
+    changingPassword: "Changing...",
+    updatePassword: "Update Password",
+    address: "Address",
+    streetAddress: "Street Address",
+    streetAddressPlaceholder: "Start typing your address...",
+    city: "City",
+    cityPlaceholder: "City",
+    province: "Province",
+    postalCode: "Postal Code",
+    postalCodePlaceholder: "H2X 1Y4",
+    saving: "Saving...",
+    saveChanges: "Save Changes",
+    photoUpdated: "Photo updated",
+    photoRemoved: "Photo removed",
+    failedUploadPhoto: "Failed to upload photo",
+    failedRemovePhoto: "Failed to remove photo",
+    selectImageFile: "Please select an image file",
+    accountUpdated: "Account updated",
+    failedSave: "Failed to save",
+    passwordChanged: "Password changed",
+    failedChangePassword: "Failed to change password",
+    passwordsDontMatch: "Passwords don't match",
+    passwordMinLength: "Password must be at least 8 characters",
+  },
+  provinces: {
+    AB: "Alberta",
+    BC: "British Columbia",
+    MB: "Manitoba",
+    NB: "New Brunswick",
+    NL: "Newfoundland and Labrador",
+    NS: "Nova Scotia",
+    NT: "Northwest Territories",
+    NU: "Nunavut",
+    ON: "Ontario",
+    PE: "Prince Edward Island",
+    QC: "Quebec",
+    SK: "Saskatchewan",
+    YT: "Yukon",
+  },
+  preferences: {
+    languageTitle: "Language",
+    languageDescription: "Choose the application language",
+    langFr: "Français",
+    langFrDesc: "Interface en français (Canada)",
+    langEn: "English",
+    langEnDesc: "Interface in English (Canada)",
+    cookingTitle: "Cooking Preferences",
+    householdSize: "Household Size",
+    mealsPerDay: "Meals Per Day",
+    cookingTime: "Cooking Time Preference",
+    cookingQuick: "Quick (under 30 min)",
+    cookingModerate: "Moderate (30-60 min)",
+    cookingElaborate: "Elaborate (60+ min)",
+    budgetTitle: "Budget Preference",
+    budgetDescription: "How should the AI prioritize your grocery planning?",
+    budgetEconomic: "Economic",
+    budgetEconomicDesc: "Focused on savings",
+    budgetModerate: "Moderate",
+    budgetModerateDesc: "Balance of time and savings",
+    budgetDontCare: "Don't care",
+    budgetDontCareDesc: "Focused only on time",
+    agentTitle: "Grocery Agent",
+    agentDescription: "Configure how and when the AI assistant helps you",
+    shoppingDay: "Shopping Day",
+    selectDay: "Select a day",
+    howOften: "How Often",
+    weekly: "Weekly",
+    biweekly: "Every 2 Weeks",
+    monthly: "Monthly",
+    agentBehavior: "Agent Behavior",
+    agentAuto: "Plan before grocery",
+    agentAutoDesc: "Agent proactively creates your grocery list before your shopping day",
+    agentWait: "Wait for me to chat",
+    agentWaitDesc: "Agent only acts when you start a conversation",
+    agentAsk: "Ask questions first",
+    agentAskDesc: "Agent asks your preferences before creating a plan",
+    saving: "Saving...",
+    savePreferences: "Save Preferences",
+    preferencesUpdated: "Preferences updated",
+    failedSave: "Failed to save",
+    householdSizeError: "Household size must be between 1 and 20",
+    mealsPerDayError: "Meals per day must be between 1 and 10",
+  },
+  days: {
+    none: "No preference",
+    monday: "Monday",
+    tuesday: "Tuesday",
+    wednesday: "Wednesday",
+    thursday: "Thursday",
+    friday: "Friday",
+    saturday: "Saturday",
+    sunday: "Sunday",
+  },
+  notifications: {
+    title: "Notification Preferences",
+    description: "Choose how you want to be notified about grocery plans and reminders",
+    email: "Email Notifications",
+    emailDesc: "Receive grocery lists and reminders via email",
+    sms: "SMS Notifications",
+    smsDesc: "Get text messages with shopping reminders",
+    push: "Push Notifications",
+    pushDesc: "Receive browser push notifications for updates",
+    saved: "Notification preference saved",
+    failedSave: "Failed to update notification preference",
+  },
+  api: {
+    unauthorized: "Unauthorized",
+    userNotFound: "User not found",
+    invalidCookingPref: "Invalid cooking time preference",
+    householdSizeRange: "Household size must be between 1 and 20",
+    mealsPerDayRange: "Meals per day must be between 1 and 10",
+    invalidBudgetPref: "Invalid budget preference",
+    invalidGroceryDay: "Invalid grocery day",
+    invalidGroceryFreq: "Invalid grocery frequency",
+    invalidAgentMode: "Invalid agent mode",
+    booleanRequired: "must be a boolean",
+    avatarRequired: "Avatar is required",
+    invalidImageFormat: "Invalid image format",
+    imageTooLarge: "Image too large (max 500KB)",
+    passwordsRequired: "Current password and new password are required",
+    passwordMinLength: "New password must be at least 8 characters",
+    passwordIncorrect: "Current password is incorrect",
+    passwordUpdated: "Password updated successfully",
+    addressNotConfigured: "Address autocomplete not configured",
+    addressFetchFailed: "Failed to fetch address suggestions",
+  },
+};
+
+// Recursive type that converts literal string types to `string`
+type DeepStrings<T> = {
+  [K in keyof T]: T[K] extends string ? string : DeepStrings<T[K]>;
+};
+
+type Dictionary = DeepStrings<typeof fr>;
+
+const dictionaries: Record<Locale, Dictionary> = { fr, en };
+
+// ── Locale helpers ──
+
+export function getLocale(): Locale {
+  if (typeof document !== "undefined") {
+    const match = document.cookie.match(/(?:^|; )locale=(fr|en)/);
+    if (match) return match[1] as Locale;
+  }
+  return "fr"; // default
+}
+
+export function setLocale(locale: Locale): void {
+  document.cookie = `locale=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; SameSite=Lax`;
+  window.location.reload();
+}
+
+// ── Type-safe dot-notation key lookup ──
+
 type NestedKeys<T, Prefix extends string = ""> = T extends Record<string, unknown>
   ? {
       [K in keyof T & string]: T[K] extends Record<string, unknown>
@@ -203,8 +411,10 @@ type NestedKeys<T, Prefix extends string = ""> = T extends Record<string, unknow
 type TranslationKey = NestedKeys<typeof fr>;
 
 export function t(key: TranslationKey): string {
+  const locale = getLocale();
+  const dict = dictionaries[locale];
   const parts = key.split(".");
-  let result: unknown = fr;
+  let result: unknown = dict;
   for (const part of parts) {
     if (result && typeof result === "object" && part in result) {
       result = (result as Record<string, unknown>)[part];

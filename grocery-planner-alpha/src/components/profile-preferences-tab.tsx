@@ -13,9 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DollarSign, Clock, Bot } from "lucide-react";
+import { DollarSign, Clock, Bot, Globe } from "lucide-react";
 import { toast } from "sonner";
-import { t } from "@/lib/i18n";
+import { t, getLocale, setLocale } from "@/lib/i18n";
 import type { ProfileData } from "./profile-tabs";
 
 const BUDGET_OPTIONS = [
@@ -168,8 +168,43 @@ export function PreferencesTab({ initialData }: { initialData: ProfileData }) {
     }
   };
 
+  const currentLocale = getLocale();
+
   return (
     <div className="space-y-6">
+      {/* Language */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="size-5" />
+            {t("preferences.languageTitle")}
+          </CardTitle>
+          <CardDescription>
+            {t("preferences.languageDescription")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <CardSelector
+            options={[
+              {
+                value: "fr",
+                label: t("preferences.langFr"),
+                description: t("preferences.langFrDesc"),
+                icon: "\u{1F1E8}\u{1F1E6}",
+              },
+              {
+                value: "en",
+                label: t("preferences.langEn"),
+                description: t("preferences.langEnDesc"),
+                icon: "\u{1F1EC}\u{1F1E7}",
+              },
+            ]}
+            value={currentLocale}
+            onChange={(value) => setLocale(value as "fr" | "en")}
+          />
+        </CardContent>
+      </Card>
+
       {/* Cooking Preferences */}
       <Card>
         <CardHeader>
