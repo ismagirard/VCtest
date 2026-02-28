@@ -1,0 +1,13 @@
+{
+  "name": "foodmi-scraper",
+  "private": true,
+  "scripts": {
+    "scrape": "tsx src/index.ts",
+    "scrape:maxi": "tsx src/index.ts --store=maxi",
+    "scrape:all": "tsx src/index.ts --store=all"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "^5"
+  }
+}

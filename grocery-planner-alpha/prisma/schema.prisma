@@ -40,4 +40,177 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Phase 2 relations
+  groceryLists GroceryList[]
+  interactions UserProductInteraction[]
+}
+
+// ── STORE CHAIN ──
+model StoreChain {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  nameFr      String
+  nameEn      String
+  logoUrl     String?
+  website     String
+  parentGroup String
+
+  products   Product[]
+  scrapeRuns ScrapeRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ── PRODUCT CATEGORY ──
+model Category {
+  id       String  @id @default(cuid())
+  slug     String  @unique
+  nameFr   String
+  nameEn   String
+  parentId String?
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryTree")
+  products Product[]
+
+  createdAt DateTime @default(now())
+}
+
+// ── PRODUCT ──
+model Product {
+  id           String     @id @default(cuid())
+  externalId   String
+  storeChainId String
+  storeChain   StoreChain @relation(fields: [storeChainId], references: [id])
+  categoryId   String?
+  category     Category?  @relation(fields: [categoryId], references: [id])
+
+  nameFr      String
+  nameEn      String?
+  brand       String?
+  description String?
+  imageUrl    String?
+
+  // Price
+  price        Float
+  pricePerUnit Float?
+  unit         String?
+  size         String?
+
+  // Sale / promo
+  salePrice     Float?
+  saleStartDate DateTime?
+  saleEndDate   DateTime?
+
+  // Metadata
+  sku         String?
+  upc         String?
+  isAvailable Boolean @default(true)
+  lastScrapedAt DateTime
+
+  // Relations
+  interactions UserProductInteraction[]
+  groceryItems GroceryListItem[]
+  priceHistory PriceHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([storeChainId, externalId])
+  @@index([storeChainId])
+  @@index([categoryId])
+  @@index([nameFr])
+  @@index([upc])
+  @@index([price])
+  @@index([saleEndDate])
+}
+
+// ── PRICE HISTORY ──
+model PriceHistory {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  price     Float
+  salePrice Float?
+  scrapedAt DateTime @default(now())
+
+  @@index([productId, scrapedAt])
+}
+
+// ── SCRAPE RUN ──
+model ScrapeRun {
+  id           String     @id @default(cuid())
+  storeChainId String
+  storeChain   StoreChain @relation(fields: [storeChainId], references: [id])
+  status       String     @default("running")
+
+  totalProducts   Int @default(0)
+  newProducts     Int @default(0)
+  updatedProducts Int @default(0)
+  errors          Int @default(0)
+
+  // Resumability
+  lastCategorySlug String?
+  lastPage         Int?
+  errorLog         String?
+
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@index([storeChainId, startedAt])
+}
+
+// ── GROCERY LIST ──
+model GroceryList {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name   String @default("Ma liste")
+  status String @default("active")
+
+  items GroceryListItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+}
+
+// ── GROCERY LIST ITEM ──
+model GroceryListItem {
+  id            String      @id @default(cuid())
+  groceryListId String
+  groceryList   GroceryList @relation(fields: [groceryListId], references: [id], onDelete: Cascade)
+
+  productId  String?
+  product    Product? @relation(fields: [productId], references: [id])
+  customName String?
+
+  quantity  Int     @default(1)
+  unit      String?
+  isChecked Boolean @default(false)
+
+  addedAt DateTime @default(now())
+
+  @@index([groceryListId])
+}
+
+// ── USER PRODUCT INTERACTION ──
+model UserProductInteraction {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  action   String
+  metadata String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, productId])
+  @@index([userId, action])
 }
