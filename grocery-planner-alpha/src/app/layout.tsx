@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { cookies } from "next/headers";
 import { Providers } from "@/components/providers";
 import { t } from "@/lib/i18n";
 import "./globals.css";
@@ -19,13 +20,16 @@ export const metadata: Metadata = {
   description: t("meta.description"),
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("locale")?.value === "en" ? "en" : "fr";
+
   return (
-    <html lang="fr-CA">
+    <html lang={locale === "en" ? "en-CA" : "fr-CA"}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
