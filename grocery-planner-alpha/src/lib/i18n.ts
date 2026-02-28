@@ -3,13 +3,13 @@ type Locale = "fr" | "en";
 const fr = {
   // ── Metadata & Layout ──
   meta: {
-    title: "Planificateur d'Épicerie",
+    title: "Foodmi",
     description: "Planification d'épicerie assistée par IA pour le Québec",
   },
 
   // ── Navigation ──
   nav: {
-    appName: "Planificateur d'Épicerie",
+    appName: "Foodmi",
     profile: "Profil",
     signOut: "Déconnexion",
     avatarAlt: "Profil",
@@ -17,7 +17,7 @@ const fr = {
 
   // ── Login Page ──
   login: {
-    title: "Planificateur d'Épicerie",
+    title: "Foodmi",
     description: "Connectez-vous à votre compte",
     email: "Courriel",
     password: "Mot de passe",
@@ -28,7 +28,7 @@ const fr = {
 
   // ── Home Page ──
   home: {
-    heading: "Planificateur d'Épicerie",
+    heading: "Foodmi",
     welcome: "Bienvenue,",
   },
 
@@ -201,17 +201,17 @@ const fr = {
 
 const en = {
   meta: {
-    title: "Grocery Planner",
+    title: "Foodmi",
     description: "AI-powered grocery planning for Quebec",
   },
   nav: {
-    appName: "Grocery Planner",
+    appName: "Foodmi",
     profile: "Profile",
     signOut: "Sign Out",
     avatarAlt: "Profile",
   },
   login: {
-    title: "Grocery Planner",
+    title: "Foodmi",
     description: "Sign in to your account",
     email: "Email",
     password: "Password",
@@ -220,7 +220,7 @@ const en = {
     error: "Invalid email or password",
   },
   home: {
-    heading: "Grocery Planner",
+    heading: "Foodmi",
     welcome: "Welcome,",
   },
   profilePage: {
