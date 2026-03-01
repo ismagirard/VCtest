@@ -32,6 +32,20 @@ const fr = {
     welcome: "Bienvenue,",
   },
 
+  // ── Chat ──
+  chat: {
+    heading: "Bonjour! Je suis Foodmi",
+    description:
+      "Votre assistant personnel pour la planification d'épicerie. Demandez-moi des idées de recettes, des listes d'épicerie ou des conseils pour économiser.",
+    placeholder: "Écrivez un message...",
+    suggestion1: "Planifie mes repas de la semaine",
+    suggestion2: "Donne-moi une recette rapide pour ce soir",
+    suggestion3: "Crée ma liste d'épicerie",
+    suggestion4: "Comment économiser à l'épicerie?",
+    error: "Une erreur est survenue.",
+    retry: "Réessayer",
+  },
+
   // ── Profile Page ──
   profilePage: {
     heading: "Votre profil",
@@ -222,6 +236,18 @@ const en = {
   home: {
     heading: "Foodmi",
     welcome: "Welcome,",
+  },
+  chat: {
+    heading: "Hi! I'm Foodmi",
+    description:
+      "Your personal grocery planning assistant. Ask me for recipe ideas, grocery lists, or tips to save money.",
+    placeholder: "Type a message...",
+    suggestion1: "Plan my meals for the week",
+    suggestion2: "Give me a quick recipe for tonight",
+    suggestion3: "Create my grocery list",
+    suggestion4: "How can I save on groceries?",
+    error: "Something went wrong.",
+    retry: "Retry",
   },
   profilePage: {
     heading: "Your Profile",

@@ -1,20 +1,31 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { t } from "@/lib/i18n";
+import { prisma } from "@/lib/prisma";
+import { Chat } from "@/components/chat";
 
 export default async function HomePage() {
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect("/login");
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      firstName: true,
+      lastName: true,
+      avatarBase64: true,
+    },
+  });
+
   return (
-    <main className="flex min-h-[calc(100vh-57px)] flex-col items-center justify-center p-8">
-      <h1 className="text-3xl font-bold mb-4">{t("home.heading")}</h1>
-      <p className="text-muted-foreground">
-        {t("home.welcome")} {session.user.name ?? session.user.email}
-      </p>
+    <main className="h-[calc(100vh-57px)]">
+      <Chat
+        avatarBase64={user?.avatarBase64 ?? null}
+        firstName={user?.firstName ?? null}
+        lastName={user?.lastName ?? null}
+      />
     </main>
   );
 }
