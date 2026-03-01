@@ -10,6 +10,7 @@ const fr = {
   // ── Navigation ──
   nav: {
     appName: "Foodmi",
+    chat: "Chat",
     profile: "Profil",
     signOut: "Déconnexion",
     avatarAlt: "Profil",
@@ -175,6 +176,33 @@ const fr = {
     failedSave: "Échec de la mise à jour de la préférence",
   },
 
+  // ── Chat ──
+  chat: {
+    welcome: "Bonjour! Je suis Foodmi",
+    welcomeSubtext:
+      "Votre assistant d'épicerie intelligent. Demandez-moi de trouver des produits, comparer des prix, ou planifier vos repas.",
+    placeholder: "Demandez-moi quelque chose...",
+    newConversation: "Nouvelle conversation",
+    thinking: "Je réfléchis",
+    deleteConversation: "Supprimer la conversation",
+    dateGroup: {
+      today: "Aujourd'hui",
+      yesterday: "Hier",
+      previous7: "7 derniers jours",
+      previous30: "30 derniers jours",
+      older: "Plus ancien",
+    },
+    loading: {
+      searchProducts: "Recherche de produits",
+      findCheapest: "Recherche du meilleur prix",
+      getWeeklySales: "Chargement des soldes",
+      createGroceryList: "Création de la liste",
+      addToGroceryList: "Ajout des items",
+      getUserGroceryLists: "Chargement des listes",
+      default: "Traitement",
+    },
+  },
+
   // ── API Error Messages ──
   api: {
     unauthorized: "Non autorisé",
@@ -206,6 +234,7 @@ const en = {
   },
   nav: {
     appName: "Foodmi",
+    chat: "Chat",
     profile: "Profile",
     signOut: "Sign Out",
     avatarAlt: "Profile",
@@ -350,6 +379,31 @@ const en = {
     pushDesc: "Receive browser push notifications for updates",
     saved: "Notification preference saved",
     failedSave: "Failed to update notification preference",
+  },
+  chat: {
+    welcome: "Hello! I'm Foodmi",
+    welcomeSubtext:
+      "Your intelligent grocery assistant. Ask me to find products, compare prices, or plan your meals.",
+    placeholder: "Ask me something...",
+    newConversation: "New conversation",
+    thinking: "Thinking",
+    deleteConversation: "Delete conversation",
+    dateGroup: {
+      today: "Today",
+      yesterday: "Yesterday",
+      previous7: "Previous 7 days",
+      previous30: "Previous 30 days",
+      older: "Older",
+    },
+    loading: {
+      searchProducts: "Searching products",
+      findCheapest: "Finding best price",
+      getWeeklySales: "Loading sales",
+      createGroceryList: "Creating list",
+      addToGroceryList: "Adding items",
+      getUserGroceryLists: "Loading lists",
+      default: "Processing",
+    },
   },
   api: {
     unauthorized: "Unauthorized",

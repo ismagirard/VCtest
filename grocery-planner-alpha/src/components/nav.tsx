@@ -29,6 +29,16 @@ export function Nav({ avatarBase64, firstName, lastName }: NavProps) {
             {t("nav.appName")}
           </Link>
           <Link
+            href="/chat"
+            className={`text-sm ${
+              pathname === "/chat"
+                ? "text-foreground font-medium"
+                : "text-muted-foreground"
+            }`}
+          >
+            {t("nav.chat")}
+          </Link>
+          <Link
             href="/profile"
             className={`text-sm ${
               pathname === "/profile"
