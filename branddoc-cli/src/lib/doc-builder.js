@@ -117,7 +117,12 @@ async function buildBrandKnowledge(urls, { concurrency = DEFAULTS.concurrency, c
     lines.push(`<a id="page-${sectionIndex}"></a>\n`);
     lines.push(`## ${r.title}\n`);
     lines.push(`**Source:** ${r.url}\n`);
-    lines.push(r.markdown);
+    // Strip any leftover image/media markdown references
+    var cleanMd = r.markdown
+      .replace(/!\[([^\]]*)\]\([^)]+\)/g, '')  // ![alt](src)
+      .replace(/!\[([^\]]*)\]\[[^\]]*\]/g, '') // ![alt][ref]
+      .replace(/\n{3,}/g, '\n\n');             // collapse excessive blank lines
+    lines.push(cleanMd);
     lines.push('');
     sectionIndex++;
   });

@@ -112,10 +112,19 @@ describe('POST /api/crawl', () => {
     expect(data.error).toBe('Domain is required');
   });
 
-  test('returns categorized URLs on success', async () => {
+  test('returns categorized URLs on success with discovery metadata', async () => {
     crawlDomain.mockResolvedValue({
       urls: ['https://example.com/', 'https://example.com/about'],
       source: 'sitemap',
+      discovery: {
+        sitemapsAttempted: [
+          { url: 'https://example.com/sitemap.xml', status: 'success', type: 'urlset', urlCount: 2 },
+        ],
+        robotsTxt: { found: false, sitemapDirectives: [] },
+        totalUrlsBeforeDedup: 2,
+        totalUrlsAfterDedup: 2,
+        warnings: [],
+      },
     });
 
     const res = await request('POST', '/api/crawl', { domain: 'example.com' });
@@ -125,6 +134,11 @@ describe('POST /api/crawl', () => {
     expect(data.source).toBe('sitemap');
     expect(data.urls).toHaveLength(2);
     expect(data.urls[0]).toHaveProperty('pageType');
+    // Discovery metadata passes through
+    expect(data.discovery).toBeDefined();
+    expect(data.discovery.sitemapsAttempted).toHaveLength(1);
+    expect(data.discovery.sitemapsAttempted[0].status).toBe('success');
+    expect(data.discovery.warnings).toEqual([]);
   });
 
   test('returns 500 on crawl error', async () => {

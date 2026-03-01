@@ -13,8 +13,21 @@ const turndown = new TurndownService({
   bulletListMarker: '-',
 });
 
+// Strip all images from markdown output
+turndown.addRule('removeImages', {
+  filter: 'img',
+  replacement: () => '',
+});
+
+// Strip <picture>, <video>, <audio>, <source>, <svg> elements too
+turndown.addRule('removeMedia', {
+  filter: ['picture', 'video', 'audio', 'source', 'svg'],
+  replacement: () => '',
+});
+
 const REMOVE_SELECTORS = [
   'script', 'style', 'noscript', 'iframe',
+  'img', 'picture', 'video', 'audio', 'source', 'svg', 'figure > figcaption',
   'nav', 'footer', 'header', 'aside',
   '[role="banner"]', '[role="navigation"]', '[role="contentinfo"]',
   '.cookie-banner', '.cookie-notice', '#cookie-consent',
@@ -25,6 +38,47 @@ const REMOVE_SELECTORS = [
 
 const GOOGLEBOT_UA = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
 const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+/**
+ * Decode an axios arraybuffer response to a UTF-8 string.
+ * Detects charset from Content-Type header and HTML meta tags.
+ * Falls back to UTF-8 which handles ASCII/Latin superset correctly.
+ */
+function decodeResponseToUtf8(response) {
+  const buf = Buffer.from(response.data);
+
+  // 1. Check Content-Type header for charset
+  const contentType = (response.headers['content-type'] || '').toLowerCase();
+  const charsetMatch = contentType.match(/charset=([^\s;]+)/);
+  let charset = charsetMatch ? charsetMatch[1].replace(/['"]/g, '') : null;
+
+  // 2. If no header charset, peek at HTML meta tags
+  if (!charset) {
+    // Quick ASCII-safe peek at the first 2KB for <meta charset="...">
+    const peek = buf.slice(0, 2048).toString('ascii');
+    const metaMatch = peek.match(/charset=["']?([^\s"';>]+)/i);
+    if (metaMatch) charset = metaMatch[1];
+  }
+
+  // 3. Normalize charset name
+  if (charset) {
+    charset = charset.toLowerCase().replace(/[^a-z0-9-]/g, '');
+  }
+
+  // 4. Decode using TextDecoder (supports iso-8859-1, windows-1252, utf-8, etc.)
+  try {
+    // Map common aliases
+    const decoderLabel = charset === 'iso88591' ? 'iso-8859-1'
+      : charset === 'windows1252' ? 'windows-1252'
+      : charset === 'latin1' ? 'iso-8859-1'
+      : charset || 'utf-8';
+    const decoder = new TextDecoder(decoderLabel, { fatal: false });
+    return decoder.decode(buf);
+  } catch {
+    // Unknown charset — fall back to UTF-8
+    return buf.toString('utf-8');
+  }
+}
 
 // Max time for the entire 4-tier fetch pipeline per URL
 const FETCH_TIMEOUT = 60_000; // 60 seconds
@@ -80,14 +134,16 @@ async function _fetchHtmlTiers(url) {
   try {
     const response = await axios.get(url, {
       timeout: 15000,
+      responseType: 'arraybuffer',
       headers: {
         'User-Agent': BROWSER_UA,
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
       },
       maxRedirects: 5,
       validateStatus: () => true,
     });
+    response.data = decodeResponseToUtf8(response);
     if (isRealContent(response.data, response.status)) {
       return response.data;
     }
@@ -99,14 +155,16 @@ async function _fetchHtmlTiers(url) {
   try {
     const response = await axios.get(url, {
       timeout: 15000,
+      responseType: 'arraybuffer',
       headers: {
         'User-Agent': GOOGLEBOT_UA,
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
       },
       maxRedirects: 5,
       validateStatus: () => true,
     });
+    response.data = decodeResponseToUtf8(response);
     if (isRealContent(response.data, response.status)) {
       return response.data;
     }

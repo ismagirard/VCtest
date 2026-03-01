@@ -59,7 +59,7 @@ async function getAuthenticatedClient() {
 
     server.listen(0, async () => {
       const port = server.address().port;
-      const redirectUri = `http://localhost:${port}/oauth/callback`;
+      const redirectUri = process.env.GSC_REDIRECT_URI || `http://localhost:${port}/oauth/callback`;
       const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
 
       const authUrl = oauth2Client.generateAuthUrl({

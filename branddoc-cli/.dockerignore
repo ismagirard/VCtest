@@ -1,0 +1,10 @@
+node_modules
+output
+credentials
+.env
+.DS_Store
+test/
+scripts/
+docs/
+*.md
+.git

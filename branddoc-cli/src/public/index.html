@@ -708,6 +708,245 @@
       .mode-picker { grid-template-columns: 1fr; }
       .action-bar { flex-wrap: wrap; }
     }
+
+    /* ── Notion Integration ── */
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .settings-btn {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+      padding: 4px;
+      position: relative;
+    }
+    .settings-btn:hover { opacity: 1; }
+    .settings-btn.connected::after {
+      content: '';
+      display: block;
+      width: 8px;
+      height: 8px;
+      background: #27ae60;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      right: -2px;
+    }
+
+    .settings-panel {
+      display: none;
+      background: var(--white);
+      border-bottom: 1px solid var(--olive-light);
+      padding: 24px 48px;
+      animation: slideDown 0.2s ease;
+    }
+    .settings-panel.show { display: block; }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .settings-panel h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      max-width: 600px;
+    }
+
+    .settings-row input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 2px solid var(--olive-light);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    }
+
+    .settings-connected {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .settings-connected .workspace-name { font-weight: 600; }
+    .settings-connected .dot {
+      width: 10px;
+      height: 10px;
+      background: #27ae60;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 80px;
+    }
+    .modal-overlay.show { display: flex; }
+
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal h2 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: opacity 0.15s;
+      padding: 0;
+      line-height: 1;
+    }
+    .modal-close:hover { opacity: 1; }
+
+    .modal-field {
+      margin-bottom: 16px;
+    }
+
+    .modal-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      opacity: 0.7;
+    }
+
+    .modal-field input,
+    .modal-field select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 2px solid var(--olive-light);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .modal-field select { cursor: pointer; }
+
+    .modal-field .refresh-btn {
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.15s;
+      margin-left: 8px;
+    }
+    .modal-field .refresh-btn:hover { opacity: 1; }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--olive-light);
+    }
+
+    .btn-notion {
+      background: #000;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-notion:hover { background: #333; transform: translateY(-1px); }
+    .btn-notion:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+    .relation-search { position: relative; }
+    .relation-search input { width: 100%; }
+
+    .relation-search .dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      border: 2px solid var(--olive-light);
+      border-top: none;
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 10;
+      display: none;
+    }
+    .relation-search .dropdown.show { display: block; }
+
+    .relation-search .dropdown-item {
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.1s;
+    }
+    .relation-search .dropdown-item:hover { background: var(--cream); }
+
+    .relation-selected-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .relation-tag {
+      background: var(--cream);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .relation-tag .remove {
+      cursor: pointer;
+      opacity: 0.5;
+      font-size: 14px;
+    }
+    .relation-tag .remove:hover { opacity: 1; }
   </style>
 </head>
 <body>
@@ -715,7 +954,45 @@
   <!-- Header -->
   <div class="header">
     <a class="logo" onclick="goHome()">branddoc.</a>
-    <button class="back-btn" id="backBtn" onclick="goHome()">Back to tools</button>
+    <div class="header-actions">
+      <button class="back-btn" id="backBtn" onclick="goHome()">Back to tools</button>
+      <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Notion settings">&#9881;</button>
+    </div>
+  </div>
+
+  <!-- Notion Settings Panel -->
+  <div class="settings-panel" id="settingsPanel">
+    <h3>Notion Integration</h3>
+    <div id="notionDisconnected">
+      <p style="font-size:14px;opacity:0.6;margin-bottom:12px;">
+        Connect your Notion workspace to send documents directly.
+      </p>
+      <!-- OAuth button (primary method) -->
+      <div id="notionOAuthSection">
+        <button class="btn btn-primary" style="padding:12px 24px;font-size:14px;display:inline-flex;align-items:center;gap:8px;" onclick="startNotionOAuth()">
+          <svg width="18" height="18" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.017 4.313l55.333-4.087c6.797-.583 8.543-.19 12.817 2.917l17.663 12.443c2.913 2.14 3.883 2.723 3.883 5.053v68.243c0 4.277-1.553 6.807-6.99 7.193L24.467 99.967c-4.08.193-6.023-.39-8.16-3.113L3.3 79.94c-2.333-3.113-3.3-5.443-3.3-8.167V11.113c0-3.497 1.553-6.413 6.017-6.8z" fill="#fff"/><path d="M61.35.227L6.017 4.313C1.553 4.7 0 7.617 0 11.113v60.66c0 2.723.967 5.053 3.3 8.167l13.007 16.913c2.137 2.723 4.08 3.307 8.16 3.113l64.257-3.89c5.433-.387 6.99-2.917 6.99-7.193V20.64c0-2.21-.86-2.847-3.443-4.733L74.167 3.143C69.893.037 68.147-.357 61.35.227zM25.92 19.523c-5.247.353-6.437.433-9.417-1.99L8.927 11.507c-.777-.583-.39-1.36.973-1.553l53.193-3.887c4.467-.39 6.793 1.167 8.543 2.527l9.123 6.61c.39.193 1.36 1.36.193 1.36l-55.06 3.153-.003-.193zM19.803 88.3V30.367c0-2.53.777-3.697 3.103-3.893L86 23.007c2.14-.193 3.107 1.167 3.107 3.693v57.547c0 2.53-1.163 4.473-4.273 4.667L24.077 92.587c-3.107.193-4.273-1.163-4.273-4.28v-.007zM79.2 34.847c.39 1.747 0 3.497-1.75 3.693l-2.527.583V79.94c-2.14 1.167-4.08 1.747-5.643 1.747-2.527 0-3.3-.967-5.247-3.497L45.22 50.607V77.6l5.443 1.167s0 3.497-4.857 3.497L33.44 83.24c-.39-.777 0-2.723 1.357-3.11l1.553-.39V44.373L31.9 43.79c-.39-1.75.583-4.277 3.3-4.473l14.163-.967 19.413 29.75V42.623l-4.467-.583c-.39-2.14 1.167-3.693 3.107-3.887l14.163-.887.003.583-.383-.003z" fill="#000"/></svg>
+          Connect with Notion
+        </button>
+      </div>
+      <!-- Manual token fallback -->
+      <details id="notionManualSection" style="margin-top:16px;">
+        <summary style="font-size:13px;opacity:0.5;cursor:pointer;">Or connect with an integration token</summary>
+        <div style="margin-top:12px;">
+          <div class="settings-row">
+            <input type="password" id="notionTokenInput" placeholder="ntn_xxxxxxxxxxxxxxxx" />
+            <button class="btn btn-primary" style="padding:10px 20px;" onclick="connectNotion()">Connect</button>
+          </div>
+        </div>
+      </details>
+      <div class="status" id="notionConnectStatus" style="margin-top:12px;"></div>
+    </div>
+    <div id="notionConnected" style="display:none;">
+      <div class="settings-connected">
+        <span class="dot"></span>
+        <span>Connected to <span class="workspace-name" id="notionWorkspaceName"></span></span>
+        <button class="btn btn-secondary" style="padding:8px 16px;font-size:13px;" onclick="disconnectNotion()">Disconnect</button>
+      </div>
+    </div>
   </div>
 
   <!-- Hero -->
@@ -752,6 +1029,11 @@
           <h3>Export URLs</h3>
           <p>Crawl a website and download all discovered URLs as a categorized CSV file.</p>
         </div>
+        <div class="mode-card" onclick="enterMode('site-extractor')">
+          <span class="mode-icon">&#128268;</span>
+          <h3>Site Extractor (Notion)</h3>
+          <p>Crawl a website and push each page to a Notion database with structured metadata.</p>
+        </div>
         <div class="mode-card disabled" title="Coming soon">
           <span class="mode-icon">&#127970;</span>
           <h3>Business Context</h3>
@@ -778,6 +1060,26 @@
           <button class="btn btn-primary" id="bk-crawlBtn" onclick="crawlDomain('bk')">Crawl Site</button>
         </div>
         <div class="status" id="bk-crawlStatus"></div>
+      </div>
+
+      <!-- Manual URL Input -->
+      <div style="text-align:center;padding:8px 0;font-size:14px;opacity:0.45;font-weight:600;">or add URLs manually</div>
+      <div class="card">
+        <div class="card-header">
+          <h2>Manual URLs</h2>
+        </div>
+        <p class="desc">Paste URLs one per line. These will be added to (or start) the URL list.</p>
+        <textarea
+          class="url-textarea"
+          id="bk-manualUrls"
+          placeholder="https://example.com/about
+https://example.com/services
+https://example.com/blog/post-1"
+          style="min-height:100px;"
+        ></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+          <button class="btn btn-primary" onclick="addManualUrls('bk')" style="padding:10px 20px;">Add URLs</button>
+        </div>
       </div>
 
       <!-- URL Selection -->
@@ -851,6 +1153,7 @@
             <button class="active" onclick="showRendered(this,'bk')">Rendered</button>
             <button onclick="showRaw(this,'bk')">Raw Markdown</button>
             <button onclick="downloadMd('bk')">Download .md</button>
+            <button id="bk-notionBtn" class="btn-notion" onclick="openNotionModal('bk')" style="display:none;padding:8px 16px;font-size:13px;">&#x1F4E8; Notion</button>
           </div>
         </div>
         <div class="output-content rendered" id="bk-outputContent"></div>
@@ -909,6 +1212,7 @@
             <button class="active" onclick="showRendered(this,'bg')">Rendered</button>
             <button onclick="showRaw(this,'bg')">Raw Markdown</button>
             <button onclick="downloadMd('bg')">Download .md</button>
+            <button id="bg-notionBtn" class="btn-notion" onclick="openNotionModal('bg')" style="display:none;padding:8px 16px;font-size:13px;">&#x1F4E8; Notion</button>
           </div>
         </div>
         <div class="output-content rendered" id="bg-outputContent"></div>
@@ -996,6 +1300,7 @@
             <button class="active" onclick="showRendered(this,'ex')">Rendered</button>
             <button onclick="showRaw(this,'ex')">Raw Markdown</button>
             <button onclick="downloadMd('ex')">Download .md</button>
+            <button id="ex-notionBtn" class="btn-notion" onclick="openNotionModal('ex')" style="display:none;padding:8px 16px;font-size:13px;">&#x1F4E8; Notion</button>
           </div>
         </div>
         <div class="output-content rendered" id="ex-outputContent"></div>
@@ -1049,6 +1354,122 @@
       </div>
     </div>
 
+    <!-- ═══════════════════════════════ -->
+    <!-- VIEW: Site Extractor (Notion)  -->
+    <!-- ═══════════════════════════════ -->
+    <div class="view" id="viewSiteExtractor">
+
+      <!-- Crawl -->
+      <div class="card">
+        <div class="card-header">
+          <h2>Crawl Website</h2>
+        </div>
+        <p class="desc">Enter a domain to discover all pages on the site.</p>
+        <div class="domain-row">
+          <input type="text" id="se-domainInput" class="domain-input"
+                 placeholder="example.com"
+                 onkeydown="if(event.key==='Enter')crawlDomain('se')" />
+          <button class="btn btn-primary" id="se-crawlBtn" onclick="crawlDomain('se')">Crawl Site</button>
+        </div>
+        <div class="status" id="se-crawlStatus"></div>
+      </div>
+
+      <!-- URL Selection -->
+      <div class="card" id="se-urlListCard" style="display:none;">
+        <div class="card-header">
+          <h2>Select URLs</h2>
+        </div>
+        <div class="url-list-toolbar">
+          <div class="url-list-meta">
+            <span id="se-selectedCount">0 / 0 selected</span>
+            <button class="btn-link" onclick="selectAll('se')">Select all</button>
+            <button class="btn-link" onclick="deselectAll('se')">Deselect all</button>
+          </div>
+          <div class="url-list-filters">
+            <input type="text" id="se-searchInput" class="search-input" placeholder="Search URLs..." oninput="applyFilters('se')" />
+            <select id="se-filterCategory" onchange="applyFilters('se')">
+              <option value="all">All categories</option>
+            </select>
+            <select id="se-filterLanguage" onchange="applyFilters('se')">
+              <option value="all">All languages</option>
+            </select>
+          </div>
+        </div>
+        <div class="url-list" id="se-urlList"></div>
+      </div>
+
+      <!-- Notion Destination -->
+      <div class="card" id="se-notionCard" style="display:none;">
+        <div class="card-header">
+          <h2>Notion Destination</h2>
+        </div>
+
+        <!-- Not connected warning -->
+        <div id="se-notionWarning" style="display:none;padding:12px 16px;background:#fff8e1;border:1px solid #ffe082;border-radius:8px;margin-bottom:16px;font-size:14px;">
+          You must connect Notion first. Click the <strong>gear icon</strong> in the header to connect.
+        </div>
+
+        <!-- Toggle: Create new / Use existing -->
+        <div id="se-dbModeToggle" style="display:flex;gap:8px;margin-bottom:16px;">
+          <button class="btn btn-primary" id="se-dbModeNewBtn" onclick="toggleSeDbMode('new')" style="flex:1;">Create new database</button>
+          <button class="btn" id="se-dbModeExistingBtn" onclick="toggleSeDbMode('existing')" style="flex:1;">Use existing database</button>
+        </div>
+
+        <!-- Create new database -->
+        <div id="se-dbCreateSection">
+          <div class="modal-field" style="margin-bottom:12px;">
+            <label>Parent Page</label>
+            <div class="relation-search" id="sePageSearchWrap">
+              <input type="text" id="se-pageSearchInput" placeholder="Search Notion pages..." oninput="searchSePages(this.value)" onfocus="searchSePages(this.value)" />
+              <div class="dropdown" id="se-pageDropdown"></div>
+              <div id="se-pageSelected" style="margin-top:8px;"></div>
+            </div>
+          </div>
+          <div class="modal-field">
+            <label>Database Name</label>
+            <input type="text" id="se-dbNameInput" placeholder="Site Extract — example.com" />
+          </div>
+          <div style="margin-top:12px;">
+            <button class="btn btn-primary" id="se-createDbBtn" onclick="createSeDatabase()" disabled>Create Database</button>
+          </div>
+          <div class="status" id="se-createDbStatus" style="margin-top:8px;"></div>
+        </div>
+
+        <!-- Use existing database -->
+        <div id="se-dbExistingSection" style="display:none;">
+          <div class="modal-field">
+            <label>Database <button class="refresh-btn" onclick="searchSeDatabases('')" title="Refresh">&#8635;</button></label>
+            <div class="relation-search" id="seDbSearchWrap">
+              <input type="text" id="se-dbSearchInput" placeholder="Search databases..." oninput="searchSeDatabases(this.value)" onfocus="searchSeDatabases(this.value)" />
+              <div class="dropdown" id="se-dbDropdown"></div>
+              <div id="se-dbSelected" style="margin-top:8px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected database info -->
+        <div id="se-dbReady" style="display:none;margin-top:16px;padding:12px 16px;background:rgba(48,56,21,0.06);border-radius:8px;font-size:14px;">
+          <strong>Ready:</strong> <span id="se-dbReadyName"></span>
+        </div>
+      </div>
+
+      <!-- Extract action -->
+      <div class="action-bar" id="se-actionBar" style="display:none;">
+        <span class="spacer"></span>
+        <button class="btn btn-primary" id="se-extractBtn" onclick="startSiteExtraction()" disabled>Extract &amp; Send to Notion</button>
+      </div>
+      <div class="status" id="se-extractStatus"></div>
+
+      <!-- Result -->
+      <div class="card" id="se-resultArea" style="display:none;">
+        <div class="card-header">
+          <h2>Extraction Complete</h2>
+        </div>
+        <p id="se-resultSummary" style="font-size:15px;margin-bottom:8px;"></p>
+        <a id="se-resultLink" href="#" target="_blank" style="font-weight:600;color:var(--olive);text-decoration:underline;">Open database in Notion &rarr;</a>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -1058,7 +1479,8 @@
       bk:  { urls: [], rawMarkdown: '' },
       bg:  { rawMarkdown: '' },
       ex:  { urls: [], rawMarkdown: '' },
-      csv: { urls: [] }
+      csv: { urls: [] },
+      se:  { urls: [], databaseId: null, databaseUrl: null }
     };
     var customDocs = [];      // Brand Knowledge: [{ title, fileId, preview }]
     var guidelineDocs = [];   // Brand Guidelines: [{ title, fileId, preview }]
@@ -1071,6 +1493,7 @@
       document.getElementById('viewBrandGuidelines').classList.remove('active');
       document.getElementById('viewExtract').classList.remove('active');
       document.getElementById('viewExport').classList.remove('active');
+      document.getElementById('viewSiteExtractor').classList.remove('active');
       document.getElementById('backBtn').style.display = 'none';
       document.getElementById('hero').style.display = '';
     }
@@ -1082,6 +1505,7 @@
       document.getElementById('viewBrandGuidelines').classList.remove('active');
       document.getElementById('viewExtract').classList.remove('active');
       document.getElementById('viewExport').classList.remove('active');
+      document.getElementById('viewSiteExtractor').classList.remove('active');
       document.getElementById('backBtn').style.display = 'inline-block';
       document.getElementById('hero').style.display = 'none';
 
@@ -1093,6 +1517,8 @@
         document.getElementById('viewExtract').classList.add('active');
       } else if (mode === 'export') {
         document.getElementById('viewExport').classList.add('active');
+      } else if (mode === 'site-extractor') {
+        document.getElementById('viewSiteExtractor').classList.add('active');
       }
     }
 
@@ -1124,12 +1550,156 @@
         renderUrlList(prefix);
         updateSelectedCount(prefix);
         if (listCard) listCard.style.display = 'block';
-        setStatus(prefix + '-crawlStatus', 'success',
-          'Found ' + data.count + ' URLs via ' + data.source);
+        var statusMsg = 'Found ' + data.count + ' URLs via ' + data.source;
+
+        // Add discovery details if available
+        if (data.discovery) {
+          var d = data.discovery;
+
+          // Show dedup info if significant
+          if (d.totalUrlsBeforeDedup > d.totalUrlsAfterDedup) {
+            statusMsg += ' (' + (d.totalUrlsBeforeDedup - d.totalUrlsAfterDedup) + ' duplicates removed)';
+          }
+
+          // Warnings box (shown above details if any child sitemaps failed)
+          var warningsHtml = '';
+          if (d.warnings && d.warnings.length > 0) {
+            warningsHtml = '<div style="margin-top:8px;padding:8px 12px;background:#fff8e1;border:1px solid #ffe082;border-radius:6px;font-size:13px;">';
+            warningsHtml += '<strong>\u26a0\ufe0f Warnings:</strong>';
+            for (var wi = 0; wi < d.warnings.length; wi++) {
+              warningsHtml += '<div style="margin-left:8px;">' + escapeHtml(d.warnings[wi]) + '</div>';
+            }
+            warningsHtml += '</div>';
+          }
+
+          // Collapsible discovery details
+          var detailsHtml = '<details style="margin-top:10px;font-size:13px;">';
+          detailsHtml += '<summary style="cursor:pointer;font-weight:600;">Discovery details</summary>';
+          detailsHtml += '<div style="margin-top:8px;padding:8px 12px;background:rgba(0,0,0,0.03);border-radius:6px;">';
+
+          // Sitemaps attempted
+          if (d.sitemapsAttempted && d.sitemapsAttempted.length > 0) {
+            detailsHtml += '<div style="margin-bottom:6px;"><strong>Sitemaps tried:</strong></div>';
+            for (var si = 0; si < d.sitemapsAttempted.length; si++) {
+              var sm = d.sitemapsAttempted[si];
+              var icon = sm.status === 'success' ? '\u2713' : '\u2717';
+              var color = sm.status === 'success' ? '#27ae60' : '#999';
+              detailsHtml += '<div style="margin-left:8px;color:' + color + ';">'
+                + icon + ' ' + escapeHtml(sm.url)
+                + (sm.urlCount > 0 ? ' &mdash; ' + sm.urlCount + ' URLs' : '')
+                + (sm.type === 'index' && sm.children ? ' (index, ' + sm.children.length + ' children)' : '')
+                + (sm.error ? ' &mdash; ' + escapeHtml(sm.error) : '')
+                + '</div>';
+
+              // Show children for sitemap indexes
+              if (sm.children && sm.children.length > 0) {
+                for (var ci = 0; ci < sm.children.length; ci++) {
+                  var child = sm.children[ci];
+                  var cIcon = child.status === 'success' ? '\u2713' : '\u2717';
+                  var cColor = child.status === 'success' ? '#27ae60' : '#c0392b';
+                  detailsHtml += '<div style="margin-left:24px;font-size:12px;color:' + cColor + ';">'
+                    + cIcon + ' ' + escapeHtml(child.url)
+                    + (child.urlCount > 0 ? ' &mdash; ' + child.urlCount + ' URLs' : '')
+                    + (child.error ? ' &mdash; ' + escapeHtml(child.error) : '')
+                    + '</div>';
+                }
+              }
+            }
+          }
+
+          // robots.txt info
+          if (d.robotsTxt) {
+            detailsHtml += '<div style="margin-top:8px;"><strong>robots.txt:</strong> '
+              + (d.robotsTxt.found ? 'Found' : 'Not found')
+              + (d.robotsTxt.sitemapDirectives && d.robotsTxt.sitemapDirectives.length > 0
+                ? ' (' + d.robotsTxt.sitemapDirectives.length + ' Sitemap directive'
+                  + (d.robotsTxt.sitemapDirectives.length !== 1 ? 's' : '') + ')'
+                : '')
+              + '</div>';
+          }
+
+          // Deep crawl info
+          if (d.deepCrawl) {
+            detailsHtml += '<div style="margin-top:8px;"><strong>Deep crawl:</strong> '
+              + 'Started with ' + d.deepCrawl.seedUrls + ' seed URL' + (d.deepCrawl.seedUrls !== 1 ? 's' : '')
+              + ' from homepage, discovered ' + d.deepCrawl.totalDiscovered + ' total URLs by following internal links'
+              + '</div>';
+          }
+
+          detailsHtml += '</div></details>';
+
+          statusMsg += warningsHtml + detailsHtml;
+        }
+
+        setStatus(prefix + '-crawlStatus', 'success', statusMsg);
+
+        // Site Extractor: show Notion destination card + action bar after crawl
+        if (prefix === 'se') {
+          document.getElementById('se-notionCard').style.display = 'block';
+          document.getElementById('se-actionBar').style.display = '';
+          // Pre-fill database name from domain
+          var domainName = document.getElementById('se-domainInput').value.trim();
+          document.getElementById('se-dbNameInput').value = 'Site Extract \u2014 ' + domainName;
+          // Check Notion connection
+          if (!notionConnected) {
+            document.getElementById('se-notionWarning').style.display = '';
+            document.getElementById('se-dbModeToggle').style.display = 'none';
+            document.getElementById('se-dbCreateSection').style.display = 'none';
+            document.getElementById('se-dbExistingSection').style.display = 'none';
+          } else {
+            document.getElementById('se-notionWarning').style.display = 'none';
+            document.getElementById('se-dbModeToggle').style.display = '';
+            toggleSeDbMode('new');
+          }
+        }
       } catch (err) {
         setStatus(prefix + '-crawlStatus', 'error', 'Error: ' + escapeHtml(err.message));
       } finally {
         btn.disabled = false;
+      }
+    }
+
+    /* ── Manual URL Input ── */
+    function addManualUrls(prefix) {
+      var textarea = document.getElementById(prefix + '-manualUrls');
+      var raw = textarea.value.trim();
+      if (!raw) return;
+
+      var lines = raw.split('\n').map(function(l) { return l.trim(); }).filter(Boolean);
+      var existing = new Set(modeData[prefix].urls.map(function(u) { return u.url; }));
+      var added = 0;
+
+      for (var i = 0; i < lines.length; i++) {
+        var url = lines[i];
+        // Add protocol if missing
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        if (existing.has(url)) continue;
+        existing.add(url);
+
+        // Categorize: detect language from path, pageType = 'Manual'
+        var lang = null;
+        try {
+          var pathname = new URL(url).pathname;
+          var langMatch = pathname.match(/^\/([a-z]{2})(?:\/|$)/);
+          if (langMatch) lang = langMatch[1];
+        } catch(e) {}
+
+        modeData[prefix].urls.push({ url: url, language: lang, pageType: 'Manual', enabled: true });
+        added++;
+      }
+
+      if (added > 0) {
+        textarea.value = '';
+        var listCard = document.getElementById(prefix + '-urlListCard');
+        if (listCard) listCard.style.display = 'block';
+        populateFilters(prefix);
+        renderUrlList(prefix);
+        updateSelectedCount(prefix);
+        setStatus(prefix + '-crawlStatus', 'success',
+          'Added ' + added + ' manual URL' + (added !== 1 ? 's' : '')
+          + ' (' + modeData[prefix].urls.length + ' total)');
+      } else {
+        setStatus(prefix + '-crawlStatus', 'info', 'No new URLs to add (all already in list)');
       }
     }
 
@@ -1249,6 +1819,18 @@
         document.getElementById('ex-selectedCount').textContent = label;
         var manualUrls = parseManualUrls();
         document.getElementById('ex-buildBtn').disabled = selected === 0 && manualUrls.length === 0;
+      }
+
+      // Site Extractor mode
+      if (prefix === 'se') {
+        var selected = modeData.se.urls.filter(function(u) { return u.enabled; }).length;
+        var visible = modeData.se.urls.filter(function(u) { return matchesFilters(u, 'se'); }).length;
+        var total = modeData.se.urls.length;
+        var label = visible < total
+          ? selected + ' selected \u00b7 ' + visible + ' / ' + total + ' shown'
+          : selected + ' / ' + total + ' selected';
+        document.getElementById('se-selectedCount').textContent = label;
+        updateSeExtractBtn();
       }
     }
 
@@ -1798,6 +2380,800 @@
 
       return html;
     }
+
+    /* ── Notion Integration ── */
+
+    var notionConnected = false;
+    var notionDatabases = [];
+    var notionSchema = [];
+    var notionSendPrefix = null;
+    var _relationSearchTimer = null;
+    var _relationSelections = {};
+
+    function toggleSettings() {
+      document.getElementById('settingsPanel').classList.toggle('show');
+    }
+
+    async function checkNotionStatus() {
+      try {
+        var res = await fetch('/api/notion/status');
+        var data = await res.json();
+        notionConnected = data.connected;
+        if (data.workspace) {
+          document.getElementById('notionWorkspaceName').textContent = data.workspace;
+        }
+        // Hide OAuth button if not configured, show manual input instead
+        if (!data.oauthAvailable) {
+          var oauthSection = document.getElementById('notionOAuthSection');
+          if (oauthSection) oauthSection.style.display = 'none';
+          var manualSection = document.getElementById('notionManualSection');
+          if (manualSection) manualSection.open = true;
+        }
+        updateNotionUI();
+      } catch (e) { /* not connected */ }
+    }
+
+    async function startNotionOAuth() {
+      try {
+        var res = await fetch('/api/notion/oauth-url');
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        window.location.href = data.url;
+      } catch (err) {
+        setStatus('notionConnectStatus', 'error', 'Error: ' + escapeHtml(err.message));
+      }
+    }
+
+    async function handleOAuthCallback() {
+      var params = new URLSearchParams(window.location.search);
+      var code = params.get('code');
+      var error = params.get('error');
+
+      if (!code && !error) return; // No OAuth callback
+
+      // Clean the URL (remove code/state params)
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      if (error) {
+        // Open settings panel and show error
+        document.getElementById('settingsPanel').classList.add('show');
+        setStatus('notionConnectStatus', 'error', 'Notion authorization denied: ' + escapeHtml(error));
+        return;
+      }
+
+      // Exchange code for token
+      document.getElementById('settingsPanel').classList.add('show');
+      setStatus('notionConnectStatus', 'info', '<span class="spinner"></span> Completing Notion connection...');
+
+      try {
+        var res = await fetch('/api/notion/oauth-callback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: code })
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Connection failed');
+
+        notionConnected = true;
+        document.getElementById('notionWorkspaceName').textContent = data.workspace || 'Unknown';
+        updateNotionUI();
+        setStatus('notionConnectStatus', 'success', 'Connected to ' + escapeHtml(data.workspace || 'Notion'));
+      } catch (err) {
+        setStatus('notionConnectStatus', 'error', 'Error: ' + escapeHtml(err.message));
+      }
+    }
+
+    function updateNotionUI() {
+      var btn = document.getElementById('settingsBtn');
+      if (notionConnected) {
+        btn.classList.add('connected');
+      } else {
+        btn.classList.remove('connected');
+      }
+      document.getElementById('notionDisconnected').style.display = notionConnected ? 'none' : '';
+      document.getElementById('notionConnected').style.display = notionConnected ? '' : 'none';
+
+      var prefixes = ['bk', 'bg', 'ex'];
+      for (var i = 0; i < prefixes.length; i++) {
+        var nb = document.getElementById(prefixes[i] + '-notionBtn');
+        if (nb) nb.style.display = notionConnected ? '' : 'none';
+      }
+    }
+
+    async function connectNotion() {
+      var token = document.getElementById('notionTokenInput').value.trim();
+      if (!token) return;
+      setStatus('notionConnectStatus', 'info', '<span class="spinner"></span> Connecting...');
+      try {
+        var res = await fetch('/api/notion/connect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token })
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Connection failed');
+        notionConnected = true;
+        document.getElementById('notionWorkspaceName').textContent = data.workspace || 'Unknown';
+        document.getElementById('notionTokenInput').value = '';
+        updateNotionUI();
+        setStatus('notionConnectStatus', 'success', 'Connected to ' + escapeHtml(data.workspace || 'Notion'));
+      } catch (err) {
+        setStatus('notionConnectStatus', 'error', 'Error: ' + escapeHtml(err.message));
+      }
+    }
+
+    async function disconnectNotion() {
+      try { await fetch('/api/notion/disconnect', { method: 'POST' }); } catch (e) {}
+      notionConnected = false;
+      updateNotionUI();
+    }
+
+    /* ── Notion Modal ── */
+
+    var _dbSearchTimer = null;
+    var _selectedDbId = null;
+    var _selectedDbTitle = null;
+
+    function openNotionModal(prefix) {
+      notionSendPrefix = prefix;
+      _relationSelections = {};
+      _selectedDbId = null;
+      _selectedDbTitle = null;
+      document.getElementById('notionModal').classList.add('show');
+
+      var md = modeData[prefix].rawMarkdown || '';
+      var titleMatch = md.match(/^#\s+(.+)$/m);
+      document.getElementById('notionPageTitle').value = titleMatch ? titleMatch[1] : 'Brand Knowledge';
+
+      document.getElementById('notionPropertiesContainer').innerHTML = '';
+      document.getElementById('notionSendBtn').disabled = true;
+      document.getElementById('notionSendStatus').className = 'status';
+      document.getElementById('notionSendStatus').innerHTML = '';
+      document.getElementById('notionDbSelect').value = '';
+      document.getElementById('notionDbSearchInput').value = '';
+      document.getElementById('notionDbSelected').innerHTML = '';
+      document.getElementById('notionDbDropdown').classList.remove('show');
+
+      // Auto-load all databases on open
+      searchNotionDatabases('');
+    }
+
+    function closeNotionModal() {
+      document.getElementById('notionModal').classList.remove('show');
+      document.getElementById('notionDbDropdown').classList.remove('show');
+      notionSendPrefix = null;
+    }
+
+    function searchNotionDatabases(query) {
+      clearTimeout(_dbSearchTimer);
+      _dbSearchTimer = setTimeout(async function() {
+        var dropdown = document.getElementById('notionDbDropdown');
+        dropdown.innerHTML = '<div class="dropdown-item" style="opacity:0.4;">Searching...</div>';
+        dropdown.classList.add('show');
+        try {
+          var url = '/api/notion/databases';
+          if (query && query.trim()) url += '?q=' + encodeURIComponent(query.trim());
+          var res = await fetch(url);
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.error);
+          notionDatabases = data.databases;
+          var html = '';
+          for (var i = 0; i < data.databases.length; i++) {
+            var db = data.databases[i];
+            var label = (db.icon ? db.icon + ' ' : '') + escapeHtml(db.title);
+            html += '<div class="dropdown-item" onclick="selectNotionDb(\'' + db.id + '\',\'' + escapeHtml(db.title).replace(/'/g, "\\'") + '\',\'' + (db.icon || '').replace(/'/g, "\\'") + '\')">' + label + '</div>';
+          }
+          dropdown.innerHTML = html || '<div class="dropdown-item" style="opacity:0.4;">No databases found</div>';
+        } catch (err) {
+          dropdown.innerHTML = '<div class="dropdown-item" style="opacity:0.4;">Error: ' + escapeHtml(err.message) + '</div>';
+        }
+      }, query ? 300 : 0); // instant for empty (initial load), debounced for typing
+    }
+
+    function selectNotionDb(dbId, dbTitle, dbIcon) {
+      _selectedDbId = dbId;
+      _selectedDbTitle = dbTitle;
+      document.getElementById('notionDbSelect').value = dbId;
+      document.getElementById('notionDbSearchInput').value = '';
+      document.getElementById('notionDbDropdown').classList.remove('show');
+      document.getElementById('notionDbSelected').innerHTML =
+        '<span class="relation-tag">' + (dbIcon ? dbIcon + ' ' : '') + escapeHtml(dbTitle) +
+        ' <span class="remove" onclick="clearNotionDb()">&times;</span></span>';
+      onDatabaseSelected();
+    }
+
+    function clearNotionDb() {
+      _selectedDbId = null;
+      _selectedDbTitle = null;
+      document.getElementById('notionDbSelect').value = '';
+      document.getElementById('notionDbSelected').innerHTML = '';
+      document.getElementById('notionPropertiesContainer').innerHTML = '';
+      document.getElementById('notionSendBtn').disabled = true;
+    }
+
+    async function refreshNotionDatabases() {
+      clearNotionDb();
+      document.getElementById('notionDbSearchInput').value = '';
+      searchNotionDatabases('');
+    }
+
+    async function onDatabaseSelected() {
+      var dbId = document.getElementById('notionDbSelect').value;
+      var container = document.getElementById('notionPropertiesContainer');
+      var sendBtn = document.getElementById('notionSendBtn');
+
+      if (!dbId) {
+        container.innerHTML = '';
+        sendBtn.disabled = true;
+        return;
+      }
+
+      container.innerHTML = '<div style="padding:12px;opacity:0.5;font-size:14px;"><span class="spinner"></span> Loading properties...</div>';
+      _relationSelections = {};
+
+      try {
+        var res = await fetch('/api/notion/databases/' + dbId + '/schema');
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        notionSchema = data.properties;
+        renderPropertyFields(data.properties, dbId);
+        sendBtn.disabled = false;
+      } catch (err) {
+        container.innerHTML = '<div style="padding:12px;color:#c0392b;font-size:14px;">Error: ' + escapeHtml(err.message) + '</div>';
+      }
+    }
+
+    function renderPropertyFields(properties, dbId) {
+      var container = document.getElementById('notionPropertiesContainer');
+      var html = '';
+
+      for (var i = 0; i < properties.length; i++) {
+        var prop = properties[i];
+        if (prop.type === 'title') continue;
+
+        html += '<div class="modal-field">';
+        html += '<label>' + escapeHtml(prop.name) + ' <span style="opacity:0.4;font-weight:400;">(' + prop.type + ')</span></label>';
+
+        if (prop.type === 'select') {
+          html += '<select id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="select">';
+          html += '<option value="">\u2014 none \u2014</option>';
+          var opts = prop.config.options || [];
+          for (var j = 0; j < opts.length; j++) {
+            html += '<option value="' + escapeHtml(opts[j].name) + '">' + escapeHtml(opts[j].name) + '</option>';
+          }
+          html += '</select>';
+
+        } else if (prop.type === 'multi_select') {
+          html += '<select id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="multi_select" multiple style="min-height:60px;">';
+          var mopts = prop.config.options || [];
+          for (var j = 0; j < mopts.length; j++) {
+            html += '<option value="' + escapeHtml(mopts[j].name) + '">' + escapeHtml(mopts[j].name) + '</option>';
+          }
+          html += '</select>';
+
+        } else if (prop.type === 'status') {
+          html += '<select id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="status">';
+          html += '<option value="">\u2014 none \u2014</option>';
+          var sopts = prop.config.options || [];
+          for (var j = 0; j < sopts.length; j++) {
+            html += '<option value="' + escapeHtml(sopts[j].name) + '">' + escapeHtml(sopts[j].name) + '</option>';
+          }
+          html += '</select>';
+
+        } else if (prop.type === 'relation') {
+          html += '<div class="relation-search" id="relation-' + i + '">';
+          html += '<input type="text" placeholder="Search..." oninput="searchRelation(' + i + ', this.value, \'' + escapeHtml(dbId) + '\', \'' + escapeHtml(prop.name).replace(/'/g, "\\'") + '\')" />';
+          html += '<div class="dropdown" id="relation-dropdown-' + i + '"></div>';
+          html += '<div class="relation-selected-tags" id="relation-tags-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="relation"></div>';
+          html += '</div>';
+
+        } else if (prop.type === 'checkbox') {
+          html += '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:400;">';
+          html += '<input type="checkbox" id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="checkbox" /> ';
+          html += escapeHtml(prop.name);
+          html += '</label>';
+
+        } else if (prop.type === 'number') {
+          html += '<input type="number" id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="number" />';
+
+        } else if (prop.type === 'date') {
+          html += '<input type="date" id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="date" />';
+
+        } else if (prop.type === 'url') {
+          html += '<input type="url" id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="url" placeholder="https://..." />';
+
+        } else if (prop.type === 'email') {
+          html += '<input type="email" id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="email" />';
+
+        } else if (prop.type === 'phone_number') {
+          html += '<input type="tel" id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="phone_number" />';
+
+        } else if (prop.type === 'rich_text') {
+          html += '<input type="text" id="notion-prop-' + i + '" data-prop-name="' + escapeHtml(prop.name) + '" data-prop-type="rich_text" />';
+
+        } else {
+          html += '<span style="font-size:13px;opacity:0.4;">Not editable</span>';
+        }
+
+        html += '</div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    /* ── Relation search ── */
+
+    function searchRelation(propIndex, query, dbId, propName) {
+      clearTimeout(_relationSearchTimer);
+      _relationSearchTimer = setTimeout(async function() {
+        var dropdown = document.getElementById('relation-dropdown-' + propIndex);
+        if (!query || query.length < 1) {
+          dropdown.classList.remove('show');
+          return;
+        }
+        try {
+          var res = await fetch('/api/notion/databases/' + dbId + '/relations/' + encodeURIComponent(propName) + '/pages?q=' + encodeURIComponent(query));
+          var data = await res.json();
+          if (!res.ok) return;
+
+          var html = '';
+          for (var i = 0; i < data.pages.length; i++) {
+            var p = data.pages[i];
+            html += '<div class="dropdown-item" onclick="selectRelation(' + propIndex + ',\'' + p.id + '\',\'' + escapeHtml(p.title).replace(/'/g, "\\'") + '\')">' + escapeHtml(p.title) + '</div>';
+          }
+          dropdown.innerHTML = html || '<div class="dropdown-item" style="opacity:0.4;">No results</div>';
+          dropdown.classList.add('show');
+        } catch (e) {}
+      }, 300);
+    }
+
+    function selectRelation(propIndex, pageId, pageTitle) {
+      if (!_relationSelections[propIndex]) _relationSelections[propIndex] = [];
+      for (var i = 0; i < _relationSelections[propIndex].length; i++) {
+        if (_relationSelections[propIndex][i].id === pageId) return;
+      }
+      _relationSelections[propIndex].push({ id: pageId, title: pageTitle });
+      renderRelationTags(propIndex);
+      document.getElementById('relation-dropdown-' + propIndex).classList.remove('show');
+      var input = document.querySelector('#relation-' + propIndex + ' input');
+      if (input) input.value = '';
+    }
+
+    function removeRelation(propIndex, pageId) {
+      _relationSelections[propIndex] = (_relationSelections[propIndex] || []).filter(function(r) { return r.id !== pageId; });
+      renderRelationTags(propIndex);
+    }
+
+    function renderRelationTags(propIndex) {
+      var tags = _relationSelections[propIndex] || [];
+      var container = document.getElementById('relation-tags-' + propIndex);
+      var html = '';
+      for (var i = 0; i < tags.length; i++) {
+        html += '<span class="relation-tag">' + escapeHtml(tags[i].title) +
+          ' <span class="remove" onclick="removeRelation(' + propIndex + ',\'' + tags[i].id + '\')">&times;</span></span>';
+      }
+      container.innerHTML = html;
+    }
+
+    /* ── Collect properties & send ── */
+
+    function collectNotionProperties() {
+      var props = {};
+      var elements = document.querySelectorAll('[data-prop-name]');
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i];
+        var name = el.getAttribute('data-prop-name');
+        var type = el.getAttribute('data-prop-type');
+
+        if (type === 'select' || type === 'status') {
+          if (el.value) props[name] = { [type]: { name: el.value } };
+        } else if (type === 'multi_select') {
+          var selected = [];
+          for (var j = 0; j < el.options.length; j++) {
+            if (el.options[j].selected) selected.push({ name: el.options[j].value });
+          }
+          if (selected.length) props[name] = { multi_select: selected };
+        } else if (type === 'relation') {
+          var propIndex = el.id.replace('relation-tags-', '');
+          var selections = _relationSelections[propIndex] || [];
+          if (selections.length) props[name] = { relation: selections.map(function(s) { return { id: s.id }; }) };
+        } else if (type === 'checkbox') {
+          props[name] = { checkbox: el.checked };
+        } else if (type === 'number') {
+          if (el.value !== '') props[name] = { number: parseFloat(el.value) };
+        } else if (type === 'date') {
+          if (el.value) props[name] = { date: { start: el.value } };
+        } else if (type === 'url') {
+          if (el.value) props[name] = { url: el.value };
+        } else if (type === 'email') {
+          if (el.value) props[name] = { email: el.value };
+        } else if (type === 'phone_number') {
+          if (el.value) props[name] = { phone_number: el.value };
+        } else if (type === 'rich_text') {
+          if (el.value) props[name] = { rich_text: [{ text: { content: el.value } }] };
+        }
+      }
+      return props;
+    }
+
+    async function sendToNotion() {
+      var dbId = document.getElementById('notionDbSelect').value;
+      var title = document.getElementById('notionPageTitle').value.trim();
+      var markdown = modeData[notionSendPrefix].rawMarkdown;
+      if (!dbId || !title || !markdown) return;
+
+      var sendBtn = document.getElementById('notionSendBtn');
+      sendBtn.disabled = true;
+
+      var properties = collectNotionProperties();
+      setStatus('notionSendStatus', 'info', '<span class="spinner"></span> Sending to Notion...');
+
+      try {
+        var response = await fetch('/api/notion/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ databaseId: dbId, title: title, properties: properties, markdown: markdown })
+        });
+
+        var reader = response.body.getReader();
+        var decoder = new TextDecoder();
+        var buf = '';
+
+        while (true) {
+          var read = await reader.read();
+          if (read.done) {
+            buf += decoder.decode();
+            break;
+          }
+          buf += decoder.decode(read.value, { stream: true });
+          var frames = buf.split('\n\n');
+          buf = frames.pop();
+
+          for (var i = 0; i < frames.length; i++) {
+            var line = frames[i].trim();
+            if (!line.startsWith('data:')) continue;
+            try {
+              var evt = JSON.parse(line.substring(5).trim());
+              if (evt.type === 'progress') {
+                var pct = Math.round((evt.batch / evt.totalBatches) * 100);
+                setStatus('notionSendStatus', 'info',
+                  '<span class="spinner"></span> Uploading blocks... ' + pct + '% (' + evt.blocksAppended + '/' + evt.totalBlocks + ')');
+              } else if (evt.type === 'done') {
+                setStatus('notionSendStatus', 'success',
+                  'Page created! ' + evt.blocksAppended + ' blocks. <a href="' + escapeHtml(evt.pageUrl) + '" target="_blank" style="color:inherit;text-decoration:underline;">Open in Notion &rarr;</a>');
+              } else if (evt.type === 'error') {
+                throw new Error(evt.error);
+              }
+            } catch (e) {
+              if (e.message && e.message.indexOf('Unexpected') === -1) throw e;
+            }
+          }
+        }
+      } catch (err) {
+        setStatus('notionSendStatus', 'error', 'Error: ' + escapeHtml(err.message));
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    /* ── Site Extractor (Notion) ── */
+
+    var _seDbMode = 'new'; // 'new' or 'existing'
+    var _seSelectedPageId = null;
+    var _seSelectedPageTitle = null;
+    var _seSelectedDbId = null;
+    var _seSelectedDbTitle = null;
+    var _sePageSearchTimer = null;
+    var _seDbSearchTimer = null;
+
+    function toggleSeDbMode(mode) {
+      _seDbMode = mode;
+      var newBtn = document.getElementById('se-dbModeNewBtn');
+      var existingBtn = document.getElementById('se-dbModeExistingBtn');
+      var createSection = document.getElementById('se-dbCreateSection');
+      var existingSection = document.getElementById('se-dbExistingSection');
+
+      if (mode === 'new') {
+        newBtn.className = 'btn btn-primary';
+        existingBtn.className = 'btn';
+        createSection.style.display = '';
+        existingSection.style.display = 'none';
+      } else {
+        newBtn.className = 'btn';
+        existingBtn.className = 'btn btn-primary';
+        createSection.style.display = 'none';
+        existingSection.style.display = '';
+        searchSeDatabases('');
+      }
+      updateSeExtractBtn();
+    }
+
+    function searchSePages(query) {
+      clearTimeout(_sePageSearchTimer);
+      _sePageSearchTimer = setTimeout(async function() {
+        var dropdown = document.getElementById('se-pageDropdown');
+        dropdown.innerHTML = '<div class="dropdown-item" style="opacity:0.4;">Searching...</div>';
+        dropdown.classList.add('show');
+        try {
+          var url = '/api/notion/pages';
+          if (query && query.trim()) url += '?q=' + encodeURIComponent(query.trim());
+          var res = await fetch(url);
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.error);
+
+          var html = '';
+          for (var i = 0; i < data.pages.length; i++) {
+            var p = data.pages[i];
+            html += '<div class="dropdown-item" onclick="selectSePage(\'' + p.id + '\',\'' + escapeHtml(p.title).replace(/'/g, "\\'") + '\')">' + escapeHtml(p.title) + '</div>';
+          }
+          dropdown.innerHTML = html || '<div class="dropdown-item" style="opacity:0.4;">No pages found</div>';
+        } catch (err) {
+          dropdown.innerHTML = '<div class="dropdown-item" style="opacity:0.4;">Error: ' + escapeHtml(err.message) + '</div>';
+        }
+      }, query ? 300 : 0);
+    }
+
+    function selectSePage(pageId, pageTitle) {
+      _seSelectedPageId = pageId;
+      _seSelectedPageTitle = pageTitle;
+      document.getElementById('se-pageSearchInput').value = '';
+      document.getElementById('se-pageDropdown').classList.remove('show');
+      document.getElementById('se-pageSelected').innerHTML =
+        '<span class="relation-tag">' + escapeHtml(pageTitle) +
+        ' <span class="remove" onclick="clearSePage()">&times;</span></span>';
+      document.getElementById('se-createDbBtn').disabled = false;
+    }
+
+    function clearSePage() {
+      _seSelectedPageId = null;
+      _seSelectedPageTitle = null;
+      document.getElementById('se-pageSelected').innerHTML = '';
+      document.getElementById('se-createDbBtn').disabled = true;
+    }
+
+    async function createSeDatabase() {
+      var parentPageId = _seSelectedPageId;
+      var title = document.getElementById('se-dbNameInput').value.trim();
+      if (!parentPageId || !title) return;
+
+      var btn = document.getElementById('se-createDbBtn');
+      btn.disabled = true;
+      setStatus('se-createDbStatus', 'info', '<span class="spinner"></span> Creating database...');
+
+      try {
+        var res = await fetch('/api/notion/create-database', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ parentPageId: parentPageId, title: title })
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to create database');
+
+        modeData.se.databaseId = data.databaseId;
+        modeData.se.databaseUrl = data.databaseUrl;
+
+        document.getElementById('se-dbReady').style.display = '';
+        document.getElementById('se-dbReadyName').textContent = title;
+        setStatus('se-createDbStatus', 'success', 'Database created!');
+        updateSeExtractBtn();
+      } catch (err) {
+        setStatus('se-createDbStatus', 'error', 'Error: ' + escapeHtml(err.message));
+        btn.disabled = false;
+      }
+    }
+
+    function searchSeDatabases(query) {
+      clearTimeout(_seDbSearchTimer);
+      _seDbSearchTimer = setTimeout(async function() {
+        var dropdown = document.getElementById('se-dbDropdown');
+        dropdown.innerHTML = '<div class="dropdown-item" style="opacity:0.4;">Searching...</div>';
+        dropdown.classList.add('show');
+        try {
+          var url = '/api/notion/databases';
+          if (query && query.trim()) url += '?q=' + encodeURIComponent(query.trim());
+          var res = await fetch(url);
+          var data = await res.json();
+          if (!res.ok) throw new Error(data.error);
+
+          var html = '';
+          for (var i = 0; i < data.databases.length; i++) {
+            var db = data.databases[i];
+            var label = (db.icon ? db.icon + ' ' : '') + escapeHtml(db.title);
+            html += '<div class="dropdown-item" onclick="selectSeDb(\'' + db.id + '\',\'' + escapeHtml(db.title).replace(/'/g, "\\'") + '\')">' + label + '</div>';
+          }
+          dropdown.innerHTML = html || '<div class="dropdown-item" style="opacity:0.4;">No databases found</div>';
+        } catch (err) {
+          dropdown.innerHTML = '<div class="dropdown-item" style="opacity:0.4;">Error: ' + escapeHtml(err.message) + '</div>';
+        }
+      }, query ? 300 : 0);
+    }
+
+    function selectSeDb(dbId, dbTitle) {
+      _seSelectedDbId = dbId;
+      _seSelectedDbTitle = dbTitle;
+      modeData.se.databaseId = dbId;
+      modeData.se.databaseUrl = null; // We don't have URL for existing DBs
+      document.getElementById('se-dbSearchInput').value = '';
+      document.getElementById('se-dbDropdown').classList.remove('show');
+      document.getElementById('se-dbSelected').innerHTML =
+        '<span class="relation-tag">' + escapeHtml(dbTitle) +
+        ' <span class="remove" onclick="clearSeDb()">&times;</span></span>';
+      document.getElementById('se-dbReady').style.display = '';
+      document.getElementById('se-dbReadyName').textContent = dbTitle;
+      updateSeExtractBtn();
+    }
+
+    function clearSeDb() {
+      _seSelectedDbId = null;
+      _seSelectedDbTitle = null;
+      modeData.se.databaseId = null;
+      modeData.se.databaseUrl = null;
+      document.getElementById('se-dbSelected').innerHTML = '';
+      document.getElementById('se-dbReady').style.display = 'none';
+      document.getElementById('se-dbReadyName').textContent = '';
+      updateSeExtractBtn();
+    }
+
+    function updateSeExtractBtn() {
+      var hasUrls = modeData.se.urls.filter(function(u) { return u.enabled; }).length > 0;
+      var hasDb = !!modeData.se.databaseId;
+      document.getElementById('se-extractBtn').disabled = !(hasUrls && hasDb);
+    }
+
+    async function startSiteExtraction() {
+      var selectedUrls = modeData.se.urls.filter(function(u) { return u.enabled; });
+      var databaseId = modeData.se.databaseId;
+      if (!selectedUrls.length || !databaseId) return;
+
+      var btn = document.getElementById('se-extractBtn');
+      btn.disabled = true;
+      document.getElementById('se-resultArea').style.display = 'none';
+      setStatus('se-extractStatus', 'info',
+        '<span class="spinner"></span> Extracting &amp; uploading ' + selectedUrls.length + ' page' + (selectedUrls.length !== 1 ? 's' : '') + ' to Notion...');
+
+      var urls = selectedUrls.map(function(u) {
+        return { url: u.url, pageType: u.pageType || '', language: u.language || '', enabled: true };
+      });
+
+      try {
+        var response = await fetch('/api/notion/extract-site', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ databaseId: databaseId, urls: urls })
+        });
+
+        if (!response.body) throw new Error('Server error (HTTP ' + response.status + ')');
+
+        var reader = response.body.getReader();
+        var decoder = new TextDecoder();
+        var buf = '';
+        var succeeded = 0;
+        var failed = 0;
+
+        while (true) {
+          var read = await reader.read();
+          if (read.done) {
+            buf += decoder.decode();
+            break;
+          }
+          buf += decoder.decode(read.value, { stream: true });
+          var frames = buf.split('\n\n');
+          buf = frames.pop();
+
+          for (var i = 0; i < frames.length; i++) {
+            var line = frames[i].trim();
+            if (!line.startsWith('data:')) continue;
+            try {
+              var evt = JSON.parse(line.substring(5).trim());
+              if (evt.type === 'progress') {
+                if (evt.ok) succeeded++; else failed++;
+                var pct = Math.round((evt.current / evt.total) * 100);
+                var shortUrl = evt.url;
+                try { shortUrl = new URL(evt.url).pathname; } catch(e) {}
+                if (shortUrl.length > 50) shortUrl = shortUrl.substring(0, 47) + '...';
+                var statusIcon = evt.ok ? '\u2713' : '\u2717';
+                setStatus('se-extractStatus', 'info',
+                  '<span class="spinner"></span> ' + pct + '% \u2014 ' +
+                  evt.current + '/' + evt.total +
+                  ' (' + succeeded + ' ok, ' + failed + ' failed) \u2014 ' +
+                  statusIcon + ' ' + escapeHtml(shortUrl));
+              } else if (evt.type === 'done') {
+                var dbUrl = evt.databaseUrl || modeData.se.databaseUrl || '#';
+                document.getElementById('se-resultSummary').textContent =
+                  evt.succeeded + ' pages uploaded, ' + evt.failed + ' failed.';
+                document.getElementById('se-resultLink').href = dbUrl;
+                if (dbUrl === '#') {
+                  document.getElementById('se-resultLink').style.display = 'none';
+                } else {
+                  document.getElementById('se-resultLink').style.display = '';
+                }
+                document.getElementById('se-resultArea').style.display = 'block';
+                setStatus('se-extractStatus', 'success',
+                  'Done! ' + evt.succeeded + ' pages sent to Notion.');
+              } else if (evt.type === 'error') {
+                throw new Error(evt.error);
+              }
+            } catch (e) {
+              if (e.message && e.message.indexOf('Unexpected') === -1) throw e;
+            }
+          }
+        }
+      } catch (err) {
+        setStatus('se-extractStatus', 'error', 'Error: ' + escapeHtml(err.message));
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // Check Notion status on page load + handle OAuth callback
+    checkNotionStatus();
+    handleOAuthCallback();
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', function(e) {
+      // Close database search dropdown (Notion modal)
+      var dbWrap = document.getElementById('notionDbSearchWrap');
+      if (dbWrap && !dbWrap.contains(e.target)) {
+        document.getElementById('notionDbDropdown').classList.remove('show');
+      }
+      // Close Site Extractor page search dropdown
+      var sePageWrap = document.getElementById('sePageSearchWrap');
+      if (sePageWrap && !sePageWrap.contains(e.target)) {
+        document.getElementById('se-pageDropdown').classList.remove('show');
+      }
+      // Close Site Extractor database search dropdown
+      var seDbWrap = document.getElementById('seDbSearchWrap');
+      if (seDbWrap && !seDbWrap.contains(e.target)) {
+        document.getElementById('se-dbDropdown').classList.remove('show');
+      }
+      // Close relation dropdowns
+      var relDropdowns = document.querySelectorAll('.relation-search');
+      for (var i = 0; i < relDropdowns.length; i++) {
+        if (!relDropdowns[i].contains(e.target)) {
+          var dd = relDropdowns[i].querySelector('.dropdown');
+          if (dd) dd.classList.remove('show');
+        }
+      }
+    });
   </script>
+
+  <!-- Notion Send Modal -->
+  <div class="modal-overlay" id="notionModal">
+    <div class="modal">
+      <h2>
+        Send to Notion
+        <button class="modal-close" onclick="closeNotionModal()">&times;</button>
+      </h2>
+
+      <!-- Database selector (searchable) -->
+      <div class="modal-field">
+        <label>Database <button class="refresh-btn" onclick="refreshNotionDatabases()" title="Refresh databases">&#8635;</button></label>
+        <div class="relation-search" id="notionDbSearchWrap">
+          <input type="text" id="notionDbSearchInput" placeholder="Search databases..." oninput="searchNotionDatabases(this.value)" onfocus="searchNotionDatabases(this.value)" />
+          <div class="dropdown" id="notionDbDropdown"></div>
+          <div id="notionDbSelected" style="margin-top:8px;"></div>
+          <input type="hidden" id="notionDbSelect" value="" />
+        </div>
+      </div>
+
+      <!-- Page title -->
+      <div class="modal-field">
+        <label>Page Title</label>
+        <input type="text" id="notionPageTitle" placeholder="Brand Knowledge — example.com" />
+      </div>
+
+      <!-- Dynamic properties (populated by JS) -->
+      <div id="notionPropertiesContainer"></div>
+
+      <!-- Actions -->
+      <div class="modal-actions">
+        <button class="btn" onclick="closeNotionModal()">Cancel</button>
+        <button class="btn btn-notion" id="notionSendBtn" onclick="sendToNotion()" disabled>
+          &#x1F4E8; Send to Notion
+        </button>
+      </div>
+      <div class="status" id="notionSendStatus" style="margin-top:12px;"></div>
+    </div>
+  </div>
 </body>
 </html>

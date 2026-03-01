@@ -13,6 +13,7 @@ const fs = require('fs');
 const multer = require('multer');
 const pdfParse = require('pdf-parse');
 const tempStore = require('./lib/temp-store');
+const notionClient = require('./lib/notion-client');
 
 const os = require('os');
 const upload = multer({
@@ -48,7 +49,7 @@ function createApp() {
     }
     try {
       console.time('  crawl-discovery');
-      const { urls, source } = await crawlDomain(domain);
+      const { urls, source, discovery } = await crawlDomain(domain);
       console.timeEnd('  crawl-discovery');
       console.log(`  Found ${urls.length} URLs via ${source}`);
 
@@ -61,7 +62,7 @@ function createApp() {
       }
       console.timeEnd('  categorize');
 
-      res.json({ urls: categorized, source, count: urls.length, aiCategorized: aiPowered });
+      res.json({ urls: categorized, source, count: urls.length, aiCategorized: aiPowered, discovery });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -379,6 +380,260 @@ function createApp() {
     }
   });
 
+  // ── Notion integration routes ────────────────────────────────────────────────
+
+  // Connect: save & verify Notion token (manual token input fallback)
+  app.post('/api/notion/connect', async (req, res) => {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: 'Token is required' });
+    try {
+      const result = await notionClient.connect(token);
+      res.json(result);
+    } catch (err) {
+      res.status(401).json({ error: err.message });
+    }
+  });
+
+  // OAuth: get the authorization URL
+  app.get('/api/notion/oauth-url', (req, res) => {
+    const url = notionClient.getOAuthUrl();
+    if (!url) {
+      return res.status(500).json({ error: 'Notion OAuth not configured (missing NOTION_CLIENT_ID)' });
+    }
+    res.json({ url });
+  });
+
+  // OAuth: exchange authorization code for access token
+  app.post('/api/notion/oauth-callback', async (req, res) => {
+    const { code } = req.body;
+    if (!code) return res.status(400).json({ error: 'Authorization code is required' });
+    try {
+      const result = await notionClient.connectWithOAuth(code);
+      res.json(result);
+    } catch (err) {
+      res.status(401).json({ error: err.message });
+    }
+  });
+
+  // Disconnect: remove saved credentials
+  app.post('/api/notion/disconnect', (req, res) => {
+    notionClient.disconnect();
+    res.json({ ok: true });
+  });
+
+  // Status: check if connected (also returns oauthAvailable flag)
+  app.get('/api/notion/status', (req, res) => {
+    const status = notionClient.getStatus();
+    status.oauthAvailable = !!config.NOTION_CLIENT_ID;
+    res.json(status);
+  });
+
+  // List databases the integration can access (optional ?q=search query)
+  app.get('/api/notion/databases', async (req, res) => {
+    try {
+      const databases = await notionClient.listDatabases(req.query.q || '');
+      res.json({ databases });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Get database property schema
+  app.get('/api/notion/databases/:id/schema', async (req, res) => {
+    try {
+      const properties = await notionClient.getDatabaseSchema(req.params.id);
+      res.json({ properties });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Get pages from a related database (for relation dropdowns)
+  app.get('/api/notion/databases/:dbId/relations/:propName/pages', async (req, res) => {
+    try {
+      const schema = await notionClient.getDatabaseSchema(req.params.dbId);
+      const prop = schema.find(p => p.name === decodeURIComponent(req.params.propName));
+      if (!prop || prop.type !== 'relation') {
+        return res.status(400).json({ error: 'Property is not a relation' });
+      }
+      const pages = await notionClient.getRelationPages(prop.config.database_id, req.query.q || '');
+      res.json({ pages });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // List pages (for parent page picker when creating a database)
+  app.get('/api/notion/pages', async (req, res) => {
+    try {
+      const pages = await notionClient.listPages(req.query.q || '');
+      res.json({ pages });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Create a new Notion database inside a parent page
+  app.post('/api/notion/create-database', async (req, res) => {
+    const { parentPageId, title } = req.body;
+    if (!parentPageId || !title) {
+      return res.status(400).json({ error: 'parentPageId and title are required' });
+    }
+    try {
+      const result = await notionClient.createDatabase({ parentPageId, title });
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // Site Extractor: extract each URL and push to Notion database (SSE stream)
+  app.post('/api/notion/extract-site', async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof res.flushHeaders === 'function') res.flushHeaders();
+
+    req.setTimeout(0);
+    res.setTimeout(0);
+
+    let clientGone = false;
+    req.on('aborted', () => { clientGone = true; });
+    res.on('close', () => { clientGone = true; });
+
+    const heartbeat = setInterval(() => {
+      if (clientGone || res.writableEnded || res.destroyed) return;
+      try { res.write(': keepalive\n\n'); } catch (e) { clientGone = true; }
+    }, 15000);
+
+    function send(data) {
+      if (clientGone || res.writableEnded || res.destroyed) return;
+      try { res.write(`data: ${JSON.stringify(data)}\n\n`); } catch (e) { clientGone = true; }
+    }
+
+    const { databaseId, urls } = req.body || {};
+    if (!databaseId || !urls || !urls.length) {
+      clearInterval(heartbeat);
+      send({ type: 'error', error: 'databaseId and urls are required' });
+      return res.end();
+    }
+
+    const enabledUrls = urls.filter(u => u.enabled !== false);
+    const total = enabledUrls.length;
+    let succeeded = 0;
+    let failed = 0;
+
+    for (let i = 0; i < total; i++) {
+      if (clientGone) break;
+
+      const urlInfo = enabledUrls[i];
+      const current = i + 1;
+
+      try {
+        // 1. Extract content
+        const result = await extractContent(urlInfo.url);
+
+        if (result.error || !result.markdown) {
+          failed++;
+          send({ type: 'progress', current, total, url: urlInfo.url, ok: false, title: null, error: result.error || 'No content extracted' });
+          continue;
+        }
+
+        // 2. Push to Notion
+        const properties = {
+          'URL': { url: urlInfo.url },
+        };
+        if (urlInfo.pageType) {
+          properties['Page Type'] = { select: { name: urlInfo.pageType } };
+        }
+        if (urlInfo.language) {
+          properties['Language'] = { select: { name: urlInfo.language } };
+        }
+
+        await notionClient.createPageWithContent({
+          databaseId,
+          title: result.title || urlInfo.url,
+          properties,
+          markdown: result.markdown,
+        });
+
+        succeeded++;
+        send({ type: 'progress', current, total, url: urlInfo.url, ok: true, title: result.title });
+      } catch (err) {
+        failed++;
+        console.error('  Site extract error for', urlInfo.url, ':', err.message);
+        send({ type: 'progress', current, total, url: urlInfo.url, ok: false, title: null, error: err.message });
+      }
+    }
+
+    // Build database URL from databaseId
+    const databaseUrl = 'https://www.notion.so/' + databaseId.replace(/-/g, '');
+    send({ type: 'done', succeeded, failed, databaseUrl });
+    clearInterval(heartbeat);
+    if (!clientGone) {
+      try { res.end(); } catch (e) {}
+    }
+  });
+
+  // Send document to Notion: create page + upload blocks (SSE stream)
+  app.post('/api/notion/send', async (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof res.flushHeaders === 'function') res.flushHeaders();
+
+    req.setTimeout(0);
+    res.setTimeout(0);
+
+    let clientGone = false;
+    req.on('aborted', () => { clientGone = true; });
+    res.on('close', () => { clientGone = true; });
+
+    const heartbeat = setInterval(() => {
+      if (clientGone || res.writableEnded || res.destroyed) return;
+      try { res.write(': keepalive\n\n'); } catch (e) { clientGone = true; }
+    }, 15000);
+
+    const { databaseId, title, properties, markdown } = req.body || {};
+
+    if (!databaseId || !title || !markdown) {
+      clearInterval(heartbeat);
+      res.write(`data: ${JSON.stringify({ type: 'error', error: 'databaseId, title, and markdown are required' })}\n\n`);
+      return res.end();
+    }
+
+    try {
+      const result = await notionClient.createPageWithContent({
+        databaseId,
+        title,
+        properties: properties || {},
+        markdown,
+        onProgress: (progress) => {
+          if (clientGone || res.writableEnded || res.destroyed) return;
+          try {
+            res.write(`data: ${JSON.stringify({ type: 'progress', ...progress })}\n\n`);
+          } catch (e) { clientGone = true; }
+        },
+      });
+
+      if (!clientGone && !res.writableEnded && !res.destroyed) {
+        res.write(`data: ${JSON.stringify({ type: 'done', ...result })}\n\n`);
+      }
+    } catch (err) {
+      console.error('  Notion send error:', err.message);
+      if (!clientGone && !res.writableEnded && !res.destroyed) {
+        res.write(`data: ${JSON.stringify({ type: 'error', error: err.message })}\n\n`);
+      }
+    }
+
+    clearInterval(heartbeat);
+    if (!clientGone) {
+      try { res.end(); } catch (e) {}
+    }
+  });
+
   // Error-handling middleware: catch ALL pre-route errors on the SSE endpoint.
   // express.json() can reject with several error types before routes run:
   //   entity.parse.failed  — malformed JSON
@@ -389,7 +644,7 @@ function createApp() {
   // always reads SSE endpoint responses as an SSE stream.
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, _next) => {
-    if (['/api/build-knowledge', '/api/build-guidelines'].includes(req.path)) {
+    if (['/api/build-knowledge', '/api/build-guidelines', '/api/notion/send', '/api/notion/extract-site'].includes(req.path)) {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
@@ -411,10 +666,10 @@ function createApp() {
  * Start the server: bind to a port, set timeouts, install signal handlers.
  * Returns the http.Server instance so callers can close it cleanly.
  */
-function createServer(port = 3000) {
+function createServer(port = parseInt(process.env.PORT, 10) || 3000) {
   const app = createApp();
 
-  const server = app.listen(port, () => {
+  const server = app.listen(port, '0.0.0.0', () => {
     console.log(`\n  branddoc UI running at http://localhost:${port}\n`);
   });
 

@@ -4,16 +4,22 @@
   "description": "CLI tool for extracting brand documentation from websites",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node src/index.js serve",
+    "start:cli": "node src/index.js",
     "serve": "node src/index.js serve",
     "test": "jest --verbose",
     "codex:watch": "node scripts/codex-watch.js"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@mozilla/readability": "^0.5.0",
+    "@notionhq/client": "^2.3.0",
+    "@tryfabric/martian": "^1.2.4",
     "axios": "^1.7.0",
     "cheerio": "^1.0.0-rc.12",
     "commander": "^12.0.0",
@@ -26,10 +32,10 @@
     "puppeteer": "^24.37.3",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "dotenv": "^16.4.0",
     "turndown": "^7.1.0"
   },
   "devDependencies": {
-    "dotenv": "^16.4.0",
     "jest": "^30.2.0"
   }
 }

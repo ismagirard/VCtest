@@ -5,8 +5,9 @@ const fs = require('fs');
 require('dotenv').config({ path: path.resolve(__dirname, '..', '.env') });
 
 const ROOT_DIR = path.resolve(__dirname, '..');
-const OUTPUT_DIR = path.join(ROOT_DIR, 'output');
-const CREDENTIALS_DIR = path.join(ROOT_DIR, 'credentials');
+const DATA_DIR = process.env.DATA_DIR || ROOT_DIR;
+const OUTPUT_DIR = path.join(DATA_DIR, 'output');
+const CREDENTIALS_DIR = path.join(DATA_DIR, 'credentials');
 
 const DEFAULTS = {
   concurrency: 3,
@@ -25,6 +26,11 @@ function ensureDir(dirPath) {
 const SCRAPEOWL_API_KEY = process.env.SCRAPEOWL_API_KEY || '';
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
 
+// Notion OAuth (public integration)
+const NOTION_CLIENT_ID = process.env.NOTION_CLIENT_ID || '';
+const NOTION_CLIENT_SECRET = process.env.NOTION_CLIENT_SECRET || '';
+const NOTION_REDIRECT_URI = process.env.NOTION_REDIRECT_URI || 'http://localhost:3000/';
+
 module.exports = {
   ROOT_DIR,
   OUTPUT_DIR,
@@ -32,5 +38,8 @@ module.exports = {
   DEFAULTS,
   SCRAPEOWL_API_KEY,
   ANTHROPIC_API_KEY,
+  NOTION_CLIENT_ID,
+  NOTION_CLIENT_SECRET,
+  NOTION_REDIRECT_URI,
   ensureDir,
 };
