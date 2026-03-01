@@ -15,4 +15,7 @@ export abstract class StoreAdapter {
     categorySlug: string,
     page: number
   ): Promise<ScrapedProduct[] | null>;
+
+  /** Optional cleanup (e.g., close browser). Called after scrape completes. */
+  async dispose(): Promise<void> {}
 }

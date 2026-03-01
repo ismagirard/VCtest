@@ -10,25 +10,57 @@ const API_BASE = "https://api.pcexpress.ca/pcx-bff/api/v2/products/search";
 // Static API key embedded in maxi.ca's JS bundle
 const API_KEY = "C1xujSegT5j3ap3yexJjqhOfELwGKYvz";
 
-const PAGE_SIZE = 48;
+// ── Category configuration ──
+//
+// The Loblaw API returns categories via the "category" filter group.
+// Top-level "Alimentation" (27985) has 14 food subcategories.
+// We also scrape non-food grocery categories (household, personal care, etc.)
+// since people buy those at the grocery store.
+//
+// Category IDs are shared between Maxi and Provigo (same API, different stores).
 
-// Maxi category search terms mapped to our category slugs.
-const CATEGORY_TERMS: { slug: string; nameFr: string; nameEn: string; terms: string[] }[] = [
-  { slug: "fruits-legumes", nameFr: "Fruits et l\u00e9gumes", nameEn: "Fruits & Vegetables", terms: ["fruits", "l\u00e9gumes", "pommes", "bananes", "carottes"] },
-  { slug: "viandes-volailles", nameFr: "Viandes et volailles", nameEn: "Meat & Poultry", terms: ["viande", "poulet", "boeuf", "porc", "steak"] },
-  { slug: "poissons-fruits-de-mer", nameFr: "Poissons et fruits de mer", nameEn: "Fish & Seafood", terms: ["poisson", "saumon", "crevettes", "thon"] },
-  { slug: "produits-laitiers", nameFr: "Produits laitiers et oeufs", nameEn: "Dairy & Eggs", terms: ["lait", "fromage", "yogourt", "oeufs", "beurre", "cr\u00e8me"] },
-  { slug: "boulangerie", nameFr: "Boulangerie et p\u00e2tisserie", nameEn: "Bakery", terms: ["pain", "boulangerie", "croissant"] },
-  { slug: "cereales-dejeuner", nameFr: "C\u00e9r\u00e9ales et d\u00e9jeuner", nameEn: "Cereal & Breakfast", terms: ["c\u00e9r\u00e9ales", "gruau", "d\u00e9jeuner"] },
-  { slug: "conserves-sauces", nameFr: "Conserves et sauces", nameEn: "Canned Goods & Sauces", terms: ["conserve", "sauce tomate", "soupe"] },
-  { slug: "pates-riz", nameFr: "P\u00e2tes, riz et grains", nameEn: "Pasta, Rice & Grains", terms: ["p\u00e2tes", "riz", "quinoa", "spaghetti"] },
-  { slug: "collations", nameFr: "Collations et biscuits", nameEn: "Snacks & Cookies", terms: ["chips", "biscuits", "collation", "craquelins"] },
-  { slug: "boissons", nameFr: "Boissons", nameEn: "Beverages", terms: ["jus", "eau", "caf\u00e9", "th\u00e9", "boisson gazeuse"] },
-  { slug: "surgeles", nameFr: "Surgel\u00e9s", nameEn: "Frozen Foods", terms: ["surgel\u00e9", "pizza", "cr\u00e8me glac\u00e9e"] },
-  { slug: "condiments-epices", nameFr: "Condiments et \u00e9pices", nameEn: "Condiments & Spices", terms: ["\u00e9pices", "moutarde", "ketchup", "mayonnaise"] },
-  { slug: "entretien-menager", nameFr: "Entretien m\u00e9nager", nameEn: "Household Cleaning", terms: ["nettoyant", "lessive", "savon vaisselle"] },
-  { slug: "soins-personnels", nameFr: "Soins personnels", nameEn: "Personal Care", terms: ["shampooing", "dentifrice", "savon"] },
+interface LoblawCategory {
+  id: string;        // Loblaw category ID (e.g., "28000")
+  slug: string;      // Internal slug for DB
+  nameFr: string;    // French display name
+  nameEn: string;    // English display name
+}
+
+// Food subcategories (children of 27985 "Alimentation")
+const FOOD_CATEGORIES: LoblawCategory[] = [
+  { id: "28000", slug: "fruits-legumes", nameFr: "Fruits et légumes", nameEn: "Fruits & Vegetables" },
+  { id: "27998", slug: "viandes-volailles", nameFr: "Viande", nameEn: "Meat" },
+  { id: "27999", slug: "poissons-fruits-de-mer", nameFr: "Poissons et fruits de mer", nameEn: "Fish & Seafood" },
+  { id: "28003", slug: "produits-laitiers", nameFr: "Produits laitiers et œufs", nameEn: "Dairy & Eggs" },
+  { id: "28002", slug: "boulangerie", nameFr: "Boulangerie", nameEn: "Bakery" },
+  { id: "28001", slug: "charcuterie", nameFr: "Charcuterie", nameEn: "Deli" },
+  { id: "28006", slug: "garde-manger", nameFr: "Garde-manger", nameEn: "Pantry" },
+  { id: "57025", slug: "collations", nameFr: "Grignotines, croustilles et friandises", nameEn: "Snacks & Candy" },
+  { id: "28004", slug: "boissons", nameFr: "Boissons", nameEn: "Beverages" },
+  { id: "28005", slug: "surgeles", nameFr: "Produits surgelés", nameEn: "Frozen Foods" },
+  { id: "27996", slug: "repas-prepares", nameFr: "Repas préparés", nameEn: "Prepared Meals" },
+  { id: "28189", slug: "bio-naturel", nameFr: "Naturels et biologiques", nameEn: "Natural & Organic" },
+  { id: "58044", slug: "aliments-internationaux", nameFr: "Aliments internationaux", nameEn: "International Foods" },
+  { id: "28236", slug: "biere-vin", nameFr: "Vins et bières", nameEn: "Wine & Beer" },
 ];
+
+// Non-food categories also sold in grocery stores
+const NON_FOOD_CATEGORIES: LoblawCategory[] = [
+  { id: "27986", slug: "entretien-menager", nameFr: "Maison", nameEn: "Household" },
+  { id: "28011", slug: "articles-menagers", nameFr: "Articles Ménagers", nameEn: "Housewares" },
+  { id: "27994", slug: "soins-personnels", nameFr: "Soins personnels et produits de beauté", nameEn: "Personal Care & Beauty" },
+  { id: "59630", slug: "sante-bien-etre", nameFr: "Santé et bien-être", nameEn: "Health & Wellness" },
+  { id: "27987", slug: "produits-bebe", nameFr: "Bébés", nameEn: "Baby" },
+  { id: "27988", slug: "produits-animaux", nameFr: "Aliments et fournitures pour animaux", nameEn: "Pet Food & Supplies" },
+];
+
+const ALL_CATEGORIES = [...FOOD_CATEGORIES, ...NON_FOOD_CATEGORIES];
+
+// Map slug → Loblaw category for quick lookup
+const SLUG_TO_CATEGORY = new Map<string, LoblawCategory>();
+for (const cat of ALL_CATEGORIES) {
+  SLUG_TO_CATEGORY.set(cat.slug, cat);
+}
 
 // ── Response types (matched to real API responses) ──
 
@@ -64,9 +96,10 @@ interface PCXComponent {
   data?: {
     productTiles?: PCXProductTile[];
     pagination?: {
-      from?: number;
-      size?: number;
-      totalNumberOfResults?: number;
+      pageNumber?: number;
+      pageSize?: number;
+      hasMore?: boolean;
+      totalResults?: number;
     };
   };
 }
@@ -96,7 +129,7 @@ export class MaxiAdapter extends StoreAdapter {
   protected origin = "https://www.maxi.ca";
 
   async fetchCategories(): Promise<ScrapedCategory[]> {
-    return CATEGORY_TERMS.map((c) => ({
+    return ALL_CATEGORIES.map((c) => ({
       slug: c.slug,
       nameFr: c.nameFr,
       nameEn: c.nameEn,
@@ -107,21 +140,24 @@ export class MaxiAdapter extends StoreAdapter {
     categorySlug: string,
     page: number
   ): Promise<ScrapedProduct[] | null> {
-    const category = CATEGORY_TERMS.find((c) => c.slug === categorySlug);
+    const category = SLUG_TO_CATEGORY.get(categorySlug);
     if (!category) return null;
 
-    // Each "page" corresponds to a search term in the category
-    if (page >= category.terms.length) return null;
-    const term = category.terms[page];
+    // Loblaw API uses 1-based page numbers
+    const pageNum = page + 1;
 
-    const products = await this.searchProducts(term, 0);
-    return products.length > 0 ? products : null;
+    const products = await this.fetchCategoryPage(category.id, pageNum);
+    if (!products || products.length === 0) return null;
+
+    return products;
   }
 
-  protected async searchProducts(
-    term: string,
-    from: number
-  ): Promise<ScrapedProduct[]> {
+  // ── API query with category filter + proper pagination ──
+
+  protected async fetchCategoryPage(
+    categoryId: string,
+    pageNum: number
+  ): Promise<ScrapedProduct[] | null> {
     const today = new Date();
     const dateStr = `${String(today.getDate()).padStart(2, "0")}${String(today.getMonth() + 1).padStart(2, "0")}${today.getFullYear()}`;
 
@@ -135,9 +171,9 @@ export class MaxiAdapter extends StoreAdapter {
         timeSlot: null,
       },
       listingInfo: {
-        filters: { "search-bar": [term] },
+        filters: { category: [categoryId] },
         sort: {},
-        pagination: { from: from + 1 }, // 1-based
+        pagination: { from: pageNum },
         includeFiltersInResponse: false,
       },
       banner: this.banner,
@@ -147,7 +183,7 @@ export class MaxiAdapter extends StoreAdapter {
       },
       device: { screenSize: 1358 },
       searchRelatedInfo: {
-        term,
+        term: "",
         options: [{ name: "rmp.unifiedSearchVariant", value: "Y" }],
       },
     };
@@ -176,19 +212,43 @@ export class MaxiAdapter extends StoreAdapter {
       });
 
       if (!res.ok) {
-        log.error(`API ${res.status} for "${term}"`);
-        return [];
+        log.error(`${this.chainNameFr} API ${res.status} for category ${categoryId} page ${pageNum}`);
+        return null;
       }
 
       const data = (await res.json()) as PCXSearchResponse;
-      const resultCount = data.searchResultsCount ?? 0;
-      if (resultCount === 0) return [];
+      const parsed = this.parseResponse(data);
 
-      return this.parseResponse(data);
+      // Log total on first page
+      if (pageNum === 1) {
+        const totalResults = this.extractPagination(data)?.totalResults ?? 0;
+        const pages = totalResults > 0 ? Math.ceil(totalResults / 33) : 0; // ~33 product tiles per page
+        log.info(`${this.chainNameFr}: category ${categoryId} — ${totalResults} products (~${pages} pages)`);
+      }
+
+      // Check if there are more pages
+      const pagination = this.extractPagination(data);
+      if (pagination && pagination.hasMore === false) {
+        // This is the last page; return these products, next call will return null
+        // (the runner stops when we return an empty array, not null,
+        //  so we need to let this page through and return null on next call)
+      }
+
+      return parsed.length > 0 ? parsed : null;
     } catch (err) {
-      log.error(`Search failed for "${term}": ${err instanceof Error ? err.message : err}`);
-      return [];
+      log.error(`${this.chainNameFr}: category page fetch failed: ${err instanceof Error ? err.message : err}`);
+      return null;
     }
+  }
+
+  private extractPagination(data: PCXSearchResponse) {
+    const components = data.layout?.sections?.mainContentCollection?.components ?? [];
+    for (const comp of components) {
+      if (comp.componentId === "productGridComponent" && comp.data?.pagination) {
+        return comp.data.pagination;
+      }
+    }
+    return null;
   }
 
   private parseResponse(data: PCXSearchResponse): ScrapedProduct[] {

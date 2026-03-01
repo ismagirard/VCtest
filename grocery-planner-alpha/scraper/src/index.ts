@@ -2,12 +2,24 @@ import { prisma } from "./lib/db.js";
 import { log } from "./lib/logger.js";
 import { StoreAdapter } from "./stores/base-store.js";
 import { MaxiAdapter } from "./stores/maxi.js";
+import { MetroAdapter } from "./stores/metro.js";
+import { SuperCFlyerAdapter } from "./stores/superc-flyer.js";
+import { MetroFlyerAdapter } from "./stores/metro-flyer.js";
+import { IgaAdapter } from "./stores/iga.js";
+import { ProvigoAdapter } from "./stores/provigo.js";
 import type { ScrapedProduct, ScrapeProgress } from "./types.js";
 
 // ── Registry of available store adapters ──
+// "superc" = flyer adapter (only data source for Super C)
+// "metro-flyer" = weekly specials overlay (run after "metro" catalog scrape)
 
 const ADAPTERS: Record<string, () => StoreAdapter> = {
   maxi: () => new MaxiAdapter(),
+  provigo: () => new ProvigoAdapter(),
+  metro: () => new MetroAdapter(),
+  superc: () => new SuperCFlyerAdapter(),
+  "metro-flyer": () => new MetroFlyerAdapter(),
+  iga: () => new IgaAdapter(),
 };
 
 // ── Scrape runner ──
@@ -133,42 +145,69 @@ async function upsertProducts(
       });
 
       const now = new Date();
+      const isFlyer = p.source === "flyer";
 
       if (existing) {
-        // Update product
-        await prisma.product.update({
-          where: { id: existing.id },
-          data: {
-            nameFr: p.nameFr,
-            nameEn: p.nameEn,
-            brand: p.brand,
-            description: p.description,
-            imageUrl: p.imageUrl,
-            price: p.price,
-            pricePerUnit: p.pricePerUnit,
-            unit: p.unit,
-            size: p.size,
-            salePrice: p.salePrice,
+        if (isFlyer) {
+          // Flyer overlay: only update sale fields — preserve catalog regular price
+          const updateData: Record<string, any> = {
+            salePrice: p.salePrice ?? p.price,
             saleStartDate: p.saleStartDate,
             saleEndDate: p.saleEndDate,
-            sku: p.sku,
-            upc: p.upc,
-            isAvailable: true,
             lastScrapedAt: now,
-            categoryId,
-          },
-        });
+          };
 
-        // Record price change if different
-        if (existing.price !== p.price || existing.salePrice !== p.salePrice) {
-          await prisma.priceHistory.create({
-            data: { productId: existing.id, price: p.price, salePrice: p.salePrice },
+          await prisma.product.update({
+            where: { id: existing.id },
+            data: updateData,
           });
+
+          // Record sale price in history
+          const newSalePrice = p.salePrice ?? p.price;
+          if (existing.salePrice !== newSalePrice) {
+            await prisma.priceHistory.create({
+              data: { productId: existing.id, price: existing.price, salePrice: newSalePrice },
+            });
+          }
+        } else {
+          // Catalog update: full product data
+          await prisma.product.update({
+            where: { id: existing.id },
+            data: {
+              nameFr: p.nameFr,
+              nameEn: p.nameEn,
+              brand: p.brand,
+              description: p.description,
+              imageUrl: p.imageUrl,
+              price: p.price,
+              pricePerUnit: p.pricePerUnit,
+              unit: p.unit,
+              size: p.size,
+              salePrice: p.salePrice,
+              saleStartDate: p.saleStartDate,
+              saleEndDate: p.saleEndDate,
+              sku: p.sku,
+              upc: p.upc,
+              isAvailable: true,
+              lastScrapedAt: now,
+              categoryId,
+            },
+          });
+
+          // Record price change if different
+          if (existing.price !== p.price || existing.salePrice !== p.salePrice) {
+            await prisma.priceHistory.create({
+              data: { productId: existing.id, price: p.price, salePrice: p.salePrice },
+            });
+          }
         }
 
         progress.updatedProducts++;
       } else {
         // Create new product
+        // For flyer-only products (no catalog data), price = salePrice as best available
+        const price = isFlyer ? (p.price || p.salePrice || 0) : p.price;
+
         const created = await prisma.product.create({
           data: {
             externalId: p.externalId,
@@ -179,11 +218,11 @@ async function upsertProducts(
             brand: p.brand,
             description: p.description,
             imageUrl: p.imageUrl,
-            price: p.price,
+            price,
             pricePerUnit: p.pricePerUnit,
             unit: p.unit,
             size: p.size,
-            salePrice: p.salePrice,
+            salePrice: isFlyer ? (p.salePrice ?? p.price) : p.salePrice,
             saleStartDate: p.saleStartDate,
             saleEndDate: p.saleEndDate,
             sku: p.sku,
@@ -194,7 +233,11 @@ async function upsertProducts(
 
         // Initial price history record
         await prisma.priceHistory.create({
-          data: { productId: created.id, price: p.price, salePrice: p.salePrice },
+          data: {
+            productId: created.id,
+            price,
+            salePrice: isFlyer ? (p.salePrice ?? p.price) : p.salePrice,
+          },
         });
 
         progress.newProducts++;
@@ -229,7 +272,11 @@ async function main() {
 
     const adapter = factory();
     log.info(`Starting scrape for ${adapter.chainNameFr}...`);
-    await runScrape(adapter, limit);
+    try {
+      await runScrape(adapter, limit);
+    } finally {
+      await adapter.dispose();
+    }
   }
 
   await prisma.$disconnect();

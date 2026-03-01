@@ -17,6 +17,8 @@ export interface ScrapedProduct {
   categorySlug?: string;
   categoryNameFr?: string;
   categoryNameEn?: string;
+  /** Where the data came from: 'catalog' for store website, 'flyer' for weekly circular */
+  source?: "catalog" | "flyer";
 }
 
 export interface ScrapedCategory {
